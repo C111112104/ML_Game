@@ -421,28 +421,92 @@ graph TB
 ## 3.8 DQN 神經網絡結構
 
 ```mermaid
-graph LR
-    Input["輸入層<br/>5維度<br/>ball_x,y<br/>vx,vy<br/>paddle_x"]
+flowchart LR
+    Input["<b>輸入層</b><br/>5維度<br/>ball_x, ball_y<br/>vx, vy, paddle_x"]
     
-    H1["隱層1<br/>64 neurons<br/>ReLU"]
-    H2["隱層2<br/>64 neurons<br/>ReLU"]
-    H3["隱層3<br/>32 neurons<br/>ReLU"]
+    H1["<b>隱層1</b><br/>64 neurons<br/>ReLU<br/>activation"]
+    H2["<b>隱層2</b><br/>64 neurons<br/>ReLU<br/>activation"]
+    H3["<b>隱層3</b><br/>32 neurons<br/>ReLU<br/>activation"]
     
-    Output["輸出層<br/>3維度<br/>Q_left<br/>Q_stay<br/>Q_right"]
+    Output["<b>輸出層</b><br/>3維度<br/>Q_left<br/>Q_stay<br/>Q_right"]
     
-    Input -->|W1, b1<br/>320+64=384| H1
-    H1 -->|W2, b2<br/>4096+64=4160| H2
-    H2 -->|W3, b3<br/>2048+32=2080| H3
-    H3 -->|Wout, bout<br/>96+3=99| Output
+    Params1["📊 W1: 5×64=320<br/>b1: 64<br/>合計: 384"]
+    Params2["📊 W2: 64×64=4096<br/>b2: 64<br/>合計: 4160"]
+    Params3["📊 W3: 64×32=2048<br/>b3: 32<br/>合計: 2080"]
+    Params4["📊 Wout: 32×3=96<br/>bout: 3<br/>合計: 99"]
     
-    Note over Input,Output: "總參數數: 6,723個"
+    Total["🎯 <b>總參數數: 6,723個</b>"]
     
-    style Input fill:#bbdefb,color:#000
-    style H1 fill:#90caf9,color:#000
-    style H2 fill:#64b5f6,color:#000
-    style H3 fill:#42a5f5,color:#000
-    style Output fill:#2196f3,color:#fff
+    Input -->|W1, b1| H1
+    H1 -->|W2, b2| H2
+    H2 -->|W3, b3| H3
+    H3 -->|Wout, bout| Output
+    
+    Input -.-> Params1
+    H1 -.-> Params2
+    H2 -.-> Params3
+    H3 -.-> Params4
+    
+    Params1 --> Total
+    Params2 --> Total
+    Params3 --> Total
+    Params4 --> Total
+    
+    style Input fill:#bbdefb,color:#000,stroke:#1976d2,stroke-width:3px
+    style H1 fill:#90caf9,color:#000,stroke:#1565c0,stroke-width:2px
+    style H2 fill:#64b5f6,color:#000,stroke:#1565c0,stroke-width:2px
+    style H3 fill:#42a5f5,color:#000,stroke:#1565c0,stroke-width:2px
+    style Output fill:#2196f3,color:#fff,stroke:#0d47a1,stroke-width:3px
+    
+    style Params1 fill:#fff9c4,color:#000,stroke:#f57f17
+    style Params2 fill:#fff9c4,color:#000,stroke:#f57f17
+    style Params3 fill:#fff9c4,color:#000,stroke:#f57f17
+    style Params4 fill:#fff9c4,color:#000,stroke:#f57f17
+    
+    style Total fill:#c8e6c9,color:#000,stroke:#388e3c,stroke-width:3px
 ```
+
+### 網絡參數明細
+
+| 層級       | 權重矩陣  | 偏置向量 | 小計 | 說明 |
+|-----------|---------|--------|------|------|
+| **W1, b1** | 5×64=320 | 64     | 384  | 輸入層→隱層1：特徵提取 |
+| **W2, b2** | 64×64=4096 | 64   | 4160 | 隱層1→隱層2：特徵組合 |
+| **W3, b3** | 64×32=2048 | 32   | 2080 | 隱層2→隱層3：高階推理 |
+| **Wout, bout** | 32×3=96 | 3   | 99   | 隱層3→輸出層：Q值輸出 |
+| **合計** | - | - | **6,723** | 模型總參數量 |
+
+### 前向傳播過程
+
+$$
+\begin{align}
+h_1 &= ReLU(W_1 \cdot S + b_1) \quad \text{// 64維隱層1} \\
+h_2 &= ReLU(W_2 \cdot h_1 + b_2) \quad \text{// 64維隱層2} \\
+h_3 &= ReLU(W_3 \cdot h_2 + b_3) \quad \text{// 32維隱層3} \\
+Q(S,A) &= W_{out} \cdot h_3 + b_{out} \quad \text{// 3維Q值輸出}
+\end{align}
+$$
+
+其中 S = [ball_x, ball_y, vx, vy, paddle_x] 為 5 維輸入狀態向量。
+
+### 激活函數與輸出
+
+- **隱層激活**：ReLU (Rectified Linear Unit)
+  - 公式：$f(x) = \max(0, x)$
+  - 優點：計算快速、梯度不消失、稀疏表示
+
+- **輸出層激活**：Linear (無激活)
+  - 直接輸出原始Q值，可以是任意實數
+  - 便於比較三個動作的好壞
+
+### 動作選擇
+
+$$
+A^* = \arg\max_{a \in \{left, stay, right\}} Q(S, a)
+$$
+
+最終選擇Q值最大的動作執行。
+
 
 ---
 
