@@ -1,56 +1,72 @@
 # ML_Game - 機器學習遊戲 AI 專題
 
-> 使用強化學習 (Reinforcement Learning) 開發遊戲 AI 系統
+> 使用強化學習 (Reinforcement Learning) 開發多款遊戲 AI 系統，涵蓋 DQN 等主流程解法
 
 ## 📚 專題內容
 
-本專題包含兩個機器學習應用案例：
+本專題包含兩個代表性案例：
 
-### 1. 🏓 乒乓球遊戲 AI 系統 (Ping Pong Game)
+### 1. 🏓 乒乓球遊戲 AI（Ping Pong Game）
 
+- 利用 Deep Q-Network (DQN) 強化學習訓練遊戲 AI
+- 實作細節與理論請參考：[乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
 
-## 📊 研究簡報
+**特色重點：**
 
-📌 **完整專題簡報（含圖表與代碼）：**
+- 深度強化學習智能體設計
+- Bellman 方程、自動回放、目標網路等核心技術
+- 經完整測試與實證
 
-🔗 [線上瀏覽 - 乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
-
-使用 **Deep Q-Network (DQN)** 強化學習演算法，訓練 AI 代理學習乒乓球遊戲策略。
-
-**核心特性：**
-- ✅ 深度強化學習 (DRL) 實現
-- ✅ Bellman 方程應用
-- ✅ 經驗回放 (Experience Replay) 優化
-- ✅ 目標網絡 (Target Network) 穩定化
-- ✅ 完整的測試與驗證流程
-
-**目標指標：**
-| 指標 | 目標值 | 
-|------|--------|
+| 指標 | 目標值 |
+| :-- | :-- |
 | 接球成功率 | ≥85% |
 | 推理延遲 | <30 ms |
-| 訓練收斂時間 | ≤2 小時 |
+| 訓練收斂 | ≤2 小時 |
+
 
 ---
 
-### 2. 🎮 TetrAI - 俄羅斯方塊對戰 AI (待開發)
+### 2. 🎮 TetrAI - 俄羅斯方塊 AI 對戰系統
 
-進階項目：使用多代理強化學習訓練能與人類競爭的方塊遊戲 AI。
+- 強化學習 AI 智能體可自動學習 Tetris 遊戲策略
+- 支援進階行為（B2B、T-Spin、Ghost Piece 等）
+- 嚴謹 Socket 架構（Processing 遊戲引擎＋Python 智能體）
+- 詳細解構與流程圖，請見：[TetrAI 專題詳細提案](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
 
-**預計功能：**
-- 支援 B2B、T-Spin、Tetris、Ghost Piece 等進階機制
-- Socket Server 架構（Processing + Python）
-- 遺傳算法與 DQN 混合策略
+**核心特性：**
+
+- 多代理訓練（未來將支援 PvP 對戰）
+- DQN 與遺傳演算法混合策略
+- 高維度特徵工程與資料驅動學習
+- 完整模組分解、架構流程、系統分析
+- 所有關鍵架構圖直接用 Markdown 標記語法書寫
 
 ---
 
-**簡報內容結構：**
+## 🗂️ 內容導覽
 
-| 部分 | 內容描述 | 重點 |
-|------|---------|------|
-| **需求分析** | 功能需求、規格、效能、驗收方法 | 8 個核心功能定義 |
-| **系統分析** | 系統邊界、用例圖、資料流圖 | DFD 完整設計 |
-| **系統設計** | 模組分支圖、MSC 圖、架構圖 | ⭐ 含 Mermaid 圖表 |
-| **編碼實現** | game_engine.py、dqn_agent.py、train.py | 完整 Python 代碼 |
-| **驗證與測試** | 測試計劃、評估指標、性能基準 | 實測結果展示 |
+| 區塊 | 內容 | 重點補充 |
+| :-- | :-- | :-- |
+| **需求分析** | 功能、規格、效能、驗收方法 | 8 項核心定義 |
+| **系統分析** | 系統架構、資料流、特徵分析 | 包含詳細架構流程 |
+| **系統設計** | 模組結構、分支圖、架構圖 | Markdown 圖一致呈現 |
+| **編碼實現** | .py / .java 主核心程式 | 俄羅斯方塊分階段更新 |
+| **驗證測試** | 評估指標、效能測量 | 測試/可靠性報告 |
 
+
+---
+
+## 🔗 相關文檔
+
+- [乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
+- [TetrAI 俄羅斯方塊 AI 專題提案](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)  ← 含多張系統流程圖、分析架構圖（推薦線上瀏覽）
+
+---
+
+## 📣 補充
+
+- **TetrAI 方案持續更新中，歡迎 PR 與 Issue 討論！**
+- 圖表建議直接在 GitHub 上瀏覽以獲得最佳互動體驗。
+- 任何技術討論、錯誤修正請透過 Issue/New Discussion 提出。
+
+---
