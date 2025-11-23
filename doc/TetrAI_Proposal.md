@@ -263,21 +263,21 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant Processing as Processing<br/>Engine
-    participant Socket as Socket<br/>Server
-    participant Python as Python<br/>AI Agent
-    
+    participant Processing as Processing Engine
+    participant Socket as Socket Server
+    participant Python as Python AI Agent
+
     Processing->>Socket: ① 遊戲狀態
-    Socket->>Python: ② 特徵提取(state features)
-    Python->>Python: ③ 前向傳播 NN(s;θ)
-    Python->>Socket: ④ Q-Values(6個動作)
-    Socket->>Python: ⑤ Argmax選擇最優動作
-    Socket->>Processing: ⑥ 執行動作
-    Processing->>Processing: ⑦ 遊戲更新/狀態轉移
-    Processing->>Socket: ⑧ 獎勵r和下一狀態s'
-    Socket->>Python: ⑨ 存儲(s,a,r,s')到經驗回放
-    Python->>Python: ⑩ 計算損失L(θ)<br/>反向傳播∂L/∂θ<br/>參數更新θ←θ-α∇L
-    Note over Python: (重複步驟①-⑩進行訓練)
+    Socket->>Python: ② 特徵提取 (state features)
+    Python->>Socket: ③ 前向傳播 NN(s;θ)，回傳 Q-Values
+    Socket->>Python: ④ Argmax選擇最優動作
+    Socket->>Processing: ⑤ 執行動作
+    Processing->>Socket: ⑥ 遊戲更新/狀態轉移
+    Socket->>Python: ⑦ 獎勵 r 和下一狀態 s'
+    Python->>Python: ⑧ 存儲 (s,a,r,s') 到經驗回放
+    Python->>Python: ⑨ 計算損失 L(θ)、反向傳播、參數更新
+    Note over Processing,Python: 重複上述步驟迴圈進行訓練
+
 ```
 
 ### 3.4 Data Flow Diagram (DFD)
