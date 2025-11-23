@@ -365,48 +365,6 @@ sequenceDiagram
 
 ```
 
-## 3.6 系統架構圖
-
-```mermaid
-graph TB
-    subgraph Architecture["系統架構"]
-        direction TB
-        
-        subgraph GameLayer["遊戲層"]
-            GE["🎮 遊戲引擎<br/>物理模擬<br/>碰撞偵測<br/>狀態管理"]
-        end
-        
-        subgraph AILayer["AI層"]
-            AI["🤖 AI決策模組<br/>特徵提取<br/>DQN推理<br/>ε-greedy選擇"]
-        end
-        
-        subgraph TrainLayer["訓練層"]
-            TR["📚 訓練模組<br/>RL迴圈<br/>Bellman更新<br/>經驗回放<br/>目標網絡"]
-        end
-        
-        subgraph DataLayer["數據層"]
-            DB["💾 數據管理<br/>經驗緩衝區<br/>模型存儲<br/>訓練日誌"]
-        end
-        
-        subgraph UILayer["視覺化層"]
-            UI["🎨 UI模組<br/>遊戲渲染<br/>訓練監控<br/>結果展示"]
-        end
-        
-        GE <--> AI
-        AI <--> TR
-        TR <--> DB
-        GE <--> TR
-        DB <--> UI
-    end
-    
-    style Architecture fill:#e3f2fd
-    style GameLayer fill:#0288d1,color:#fff
-    style AILayer fill:#1976d2,color:#fff
-    style TrainLayer fill:#0288d1,color:#fff
-    style DataLayer fill:#01579b,color:#fff
-    style UILayer fill:#1565c0,color:#fff
-```
-
 ## 3.7 技術選型
 
 | 層次         | 技術                 | 選擇原因                 |
