@@ -26,7 +26,7 @@
 ### 1.2 規格需求
 
 | 規格項目 | 需求 | 說明 |
-|---------|------|------|
+|---------|------|--------|
 | **平台支援** | Windows & Linux | 跨平台相容性 |
 | **遊戲解析度** | 320×240 或更高 | 清晰度要求 |
 | **網絡通訊** | Socket TCP/IP | 實時低延遲通訊 |
@@ -65,30 +65,29 @@
 
 ### 2.1 系統架構概述
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    TetrAI System                     │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ┌──────────────┐      ┌──────────────┐            │
-│  │  Processing  │      │   Socket     │            │
-│  │   Engine     │◄────►│   Server     │            │
-│  │  (Java/Java) │      │ (C#/Python)  │            │
-│  └──────────────┘      └──────────────┘            │
-│       ▲                        ▲                    │
-│       │                        │                    │
-│   Game Display           Message Relay             │
-│       │                        │                    │
-│       └─────────────┬──────────┘                    │
-│                     │                              │
-│           ┌─────────▼──────────┐                   │
-│           │   Python AI Agent  │                   │
-│           │  - DQN Model       │                   │
-│           │  - Exp. Replay     │                   │
-│           │  - Decision Engine │                   │
-│           └────────────────────┘                   │
-│                                                     │
-└─────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Processing["Processing Engine<br/>(Java)"]
+        GameLogic["Game Logic Module<br/>- 碰撞檢測<br/>- 方塊管理<br/>- 消行判定"]
+        Renderer["Rendering Engine<br/>- 視覺化<br/>- 畫面更新"]
+        StateManager["State Manager<br/>- 遊戲狀態<br/>- 特徵提取"]
+    end
+    
+    subgraph Socket["Socket Server<br/>(Java/C#)"]
+        CommHandler["Communication Handler<br/>- 實時數據傳輸"]
+        MessageQueue["Message Queue<br/>- 命令分發<br/>- 非同步通訊"]
+    end
+    
+    subgraph Python["Python AI Agent<br/>(Python)"]
+        DQNModel["DQN Model<br/>- 神經網路<br/>- Q值計算"]
+        ExpReplay["Experience Replay<br/>- 經驗存儲<br/>- 批量採樣"]
+        Decision["Decision Engine<br/>- 動作選擇<br/>- 策略學習"]
+    end
+    
+    Processing <-->|Socket通訊| Socket
+    Socket <-->|遊戲狀態/動作| Python
+    DQNModel --> Decision
+    ExpReplay --> DQNModel
 ```
 
 ### 2.2 DQN 演算法核心
@@ -146,7 +145,7 @@ Q(s, a) ≈ NN(s; θ)
 | **初始化** | 隨機初始化 | 極大（L ≈ 100+） | 隨意亂動 | θ 尚未學習任何策略 |
 | **早期訓練** | 快速調整 | 快速下降 | 開始學習基本操作 | 神經網路逐步識別狀態-動作模式 |
 | **中期訓練** | 逐步精細化 | 平穩下降 | 能清除少量行 | θ 編碼了可行策略 |
-| **後期訓練** | 收斂穩定 | 低值穩定（L ≈ 0.1-1） | 穩定消除 100+ 行 | θ 已收斂到近似最優策略 |
+| **後期訓練** | 逐步穩定 | 低值穩定（L ≈ 0.1-1） | 穩定消除 100+ 行 | θ 已收斂到近似最優策略 |
 | **收斂完成** | 基本不變 | 波動很小 | 卓越表現（1000+ 行） | 模型已充分學習最優 Q 函數 |
 
 **θ 的實際機制：**
@@ -159,65 +158,79 @@ Q(s, a) ≈ NN(s; θ)
 
 ### 2.4 系統數據流
 
-```
-┌─────────────┐
-│ Game State  │
-│ (遊戲狀態)  │
-└──────┬──────┘
-       │
-       ▼
-┌──────────────────┐
-│ Feature Extract  │
-│ 特徵提取         │
-│ (行數/洞/高度差) │
-└──────┬───────────┘
-       │
-       ▼
-┌──────────────┐     ┌──────────────┐
-│ DQN Network  │────►│ Q-Values     │
-│ 神經網路     │     │ (6 個動作)   │
-└──────┬───────┘     └──────┬───────┘
-       │                     │
-       │                     ▼
-       │              ┌──────────────┐
-       │              │ Argmax(Q)    │
-       │              │ 選最優動作   │
-       │              └──────┬───────┘
-       │                     │
-       ▼                     ▼
-┌─────────────────────────────────┐
-│ Action → Game Engine            │
-│ 動作發送回遊戲引擎              │
-└─────────────────────────────────┘
+```mermaid
+graph LR
+    GameState["遊戲狀態<br/>Game State"]
+    FeatureExtract["特徵提取<br/>Feature Extract<br/>行數/洞/高度差/凹凸度"]
+    DQNNetwork["DQN 神經網路<br/>NN(s; θ)<br/>計算 Q 值"]
+    QValues["Q 值<br/>6 個動作的<br/>期望回報"]
+    ActionSelect["動作選擇<br/>argmax(Q)<br/>選最優動作"]
+    Action["執行動作<br/>Action"]
+    Executor["遊戲引擎執行<br/>Game Engine"]
+    Transition["狀態轉移<br/>r, s', done"]
+    ExpBuffer["經驗緩衝<br/>Experience Buffer<br/>存儲 s,a,r,s'"]
+    MiniBatch["小批次採樣<br/>Mini-batch"]
+    Training["訓練計算<br/>L(θ)"]
+    Backprop["反向傳播<br/>∂L/∂θ"]
+    Update["參數更新<br/>θ←θ-α∇L"]
+    
+    GameState --> FeatureExtract
+    FeatureExtract --> DQNNetwork
+    DQNNetwork --> QValues
+    QValues --> ActionSelect
+    ActionSelect --> Action
+    Action --> Executor
+    Executor --> Transition
+    Transition --> ExpBuffer
+    ExpBuffer --> MiniBatch
+    MiniBatch --> Training
+    Training --> Backprop
+    Backprop --> Update
+    Update -.循環迭代.-> DQNNetwork
 ```
 
 ---
 
 ## 三、系統設計
 
-### 3.1 系統模組分支圖
+### 3.1 系統模組分支結構
 
-```
-                         TetrAI System
-                              │
-                ┌─────────────┼─────────────┐
-                ▼             ▼             ▼
-         Processing       Socket          Python
-         Engine           Server          AI Agent
-            │                │               │
-        ┌───┴───┐        ┌───┴───┐      ┌──┴──┐
-        ▼       ▼        ▼       ▼      ▼     ▼
-     Game   Render  Comm   Message  DQN  Experience
-     Logic  Engine  Handler Queue    Model Replay
-     
-     ┌─────────────┐   ┌─────────────┐   ┌─────────┐
-     │ Collisions  │   │Broadcast    │   │Decision │
-     │ Piece Mgmt  │   │Async Relay  │   │Engine   │
-     │State Update │   │Buffer Mgmt  │   │Training │
-     └─────────────┘   └─────────────┘   └─────────┘
+```mermaid
+graph TD
+    A["TetrAI System<br/>主系統"]
+    
+    B["Processing Engine<br/>遊戲引擎"]
+    C["Socket Server<br/>通訊服務"]
+    D["Python AI Agent<br/>人工智能"]
+    
+    B1["Game Logic Module<br/>遊戲邏輯<br/>碰撞/消行/方塊管理"]
+    B2["Rendering Engine<br/>渲染引擎<br/>視覺化/畫面更新"]
+    B3["State Manager<br/>狀態管理<br/>遊戲狀態維護"]
+    
+    C1["Communication Handler<br/>通訊處理<br/>數據傳輸"]
+    C2["Message Queue<br/>消息隊列<br/>異步通訊"]
+    
+    D1["DQN Model<br/>深度 Q 網路<br/>神經網路計算"]
+    D2["Experience Replay<br/>經驗回放機制<br/>批量訓練"]
+    D3["Decision Engine<br/>決策引擎<br/>動作選擇"]
+    
+    A --> B
+    A --> C
+    A --> D
+    
+    B --> B1
+    B --> B2
+    B --> B3
+    
+    C --> C1
+    C --> C2
+    
+    D --> D1
+    D --> D2
+    D --> D3
 ```
 
-### 3.2 系統 Breakdown (WBS) 結構圖
+### 3.2 WBS 結構圖
 
 ![TetrAI System Breakdown](https://i.imgur.com/ePbRhkg.png)
 
@@ -248,117 +261,78 @@ Q(s, a) ≈ NN(s; θ)
 
 ### 3.3 Message Sequence Chart (MSC) - 系統流程
 
+```mermaid
+sequenceDiagram
+    participant Processing as Processing<br/>Engine
+    participant Socket as Socket<br/>Server
+    participant Python as Python<br/>AI Agent
+    
+    Processing->>Socket: ① 遊戲狀態
+    Socket->>Python: ② 特徵提取(state features)
+    Python->>Python: ③ 前向傳播 NN(s;θ)
+    Python->>Socket: ④ Q-Values(6個動作)
+    Socket->>Python: ⑤ Argmax選擇最優動作
+    Socket->>Processing: ⑥ 執行動作
+    Processing->>Processing: ⑦ 遊戲更新/狀態轉移
+    Processing->>Socket: ⑧ 獎勵r和下一狀態s'
+    Socket->>Python: ⑨ 存儲(s,a,r,s')到經驗回放
+    Python->>Python: ⑩ 計算損失L(θ)<br/>反向傳播∂L/∂θ<br/>參數更新θ←θ-α∇L
+    Note over Python: (重複步驟①-⑩進行訓練)
 ```
-Processing          Socket           Python
-  Engine            Server           Agent
-    │                 │                │
-    │────Game State──►│                │
-    │                 │──Extract Feat──┤
-    │                 │                │
-    │                 │◄──Forward Pass──│
-    │                 │                │NN(s;θ)
-    │                 │                │
-    │                 │◄──Q-Values────│
-    │                 │                │
-    │                 │──Argmax(Q)────►│
-    │                 │  (Best Action) │
-    │                 │                │
-    │                 │◄──Action Return│
-    │◄──Execute Action│                │
-    │                 │                │
-    │─[Execute]───────►[Transition]──►│
-    │                 │   r, s'        │
-    │                 │                │
-    │                 │──Store in ER──►│
-    │                 │  Buffer        │
-    │                 │                │
-    │                 │◄──Sample Mini  │
-    │                 │    Batch       │
-    │                 │                │
-    │                 │──Compute Loss──►│
-    │                 │   L(θ)         │
-    │                 │                │
-    │                 │◄──Backprop────│
-    │                 │   ∂L/∂θ        │
-    │                 │                │
-    │                 │──Update θ─────►│
-    │                 │   θ←θ-α·∇L     │
-    │                 │                │
-    └─────────────────┴────────────────┘
-        (重複上述過程)
-```
-
-**MSC 說明：**
-1. **狀態傳輸**：遊戲引擎發送當前遊戲狀態到 Socket Server
-2. **特徵提取**：Socket Server 提取 4 維特徵向量
-3. **前向傳播**：Python Agent 用神經網路計算 Q 值
-4. **動作選擇**：選擇 Q 值最大的動作
-5. **動作執行**：將動作發送回遊戲引擎執行
-6. **狀態轉移**：遊戲引擎更新狀態並返回獎勵
-7. **經驗存儲**：將 (s, a, r, s') 存入 Experience Replay Buffer
-8. **批量訓練**：隨機抽樣小批次進行訓練
-9. **損失計算**：計算 MSE 損失函數 L(θ)
-10. **反向傳播**：計算梯度 ∂L/∂θ
-11. **參數更新**：使用梯度下降更新 θ
 
 ### 3.4 Data Flow Diagram (DFD)
 
-```
-Level 0：高層系統
-┌────────────────────────────────────┐
-│          TetrAI System             │
-│                                    │
-│  [Processing] ◄──────► [Python]   │
-│     Engine             AI Agent    │
-└────────────────────────────────────┘
-
-Level 1：詳細數據流
-┌─────────────┐
-│Game States  │
-│  (Vectors)  │
-└──────┬──────┘
-       │ [s]
-       ▼
-┌──────────────────────┐
-│ Feature Extraction   │ ← Extract 4 features
-│  Module              │
-└──────┬───────────────┘
-       │ [features]
-       ▼
-┌──────────────────────┐
-│  DQN Network         │
-│ NN(s; θ)             │ ← Compute Q-values
-└──────┬───────────────┘
-       │ [Q(a) for all a]
-       ▼
-┌──────────────────────┐
-│ Action Selection     │
-│ max Q(s, a)          │ ← Select best action
-└──────┬───────────────┘
-       │ [action a]
-       ▼
-┌──────────────────────┐
-│ Game Engine Executor │
-│ (Transitions)        │ ← Execute action
-└──────┬───────────────┘
-       │ [r, s', done]
-       ▼
-┌──────────────────────┐
-│ Experience Buffer    │
-│ Store (s,a,r,s')    │ ← Store experience
-└──────┬───────────────┘
-       │ [Mini-batch]
-       ▼
-┌──────────────────────┐
-│ Training Compute     │
-│ Loss L(θ) = (Q_t-Q_p)²  │
-└──────┬───────────────┘
-       │ [∂L/∂θ]
-       ▼
-┌──────────────────────┐
-│ Parameter Update     │
-│ θ ← θ - α·∇L(θ)     │ ← Gradient descent
-└──────────────────────┘
+```mermaid
+graph TB
+    subgraph Input["輸入層"]
+        State["遊戲狀態向量<br/>State s"]
+    end
+    
+    subgraph Process1["特徵提取"]
+        Extract["提取 4 維特徵<br/>• 堆積高度<br/>• 洞數<br/>• 高度差<br/>• 凹凸度"]
+    end
+    
+    subgraph Process2["DQN 計算"]
+        NN["神經網路前向傳播<br/>NN(features; θ)"]
+    end
+    
+    subgraph Output1["動作決策"]
+        QVals["Q-Values<br/>6 個動作"]
+        Select["Argmax 選擇<br/>最優動作"]
+    end
+    
+    subgraph Execute["執行"]
+        Act["動作執行<br/>Action a"]
+    end
+    
+    subgraph Transition["狀態轉移"]
+        Trans["遊戲更新<br/>獲得獎勵 r<br/>下一狀態 s'"]
+    end
+    
+    subgraph Memory["經驗記憶"]
+        Buffer["Experience Replay Buffer<br/>存儲 (s,a,r,s',done)"]
+        Sample["隨機採樣 Mini-batch"]
+    end
+    
+    subgraph Training["訓練"]
+        Loss["計算損失<br/>L(θ) = (Q_t - Q_p)²"]
+        Backprop["反向傳播<br/>計算梯度 ∂L/∂θ"]
+        UpdateParam["參數更新<br/>θ ← θ - α∇L(θ)"]
+    end
+    
+    State --> Extract
+    Extract --> NN
+    NN --> QVals
+    QVals --> Select
+    Select --> Act
+    Act --> Execute
+    Execute --> Trans
+    Trans --> Buffer
+    Buffer --> Sample
+    Sample --> Loss
+    Loss --> Backprop
+    Backprop --> UpdateParam
+    UpdateParam -.循環迴饋.-> NN
 ```
 
 ### 3.5 技術棧設計
@@ -377,129 +351,7 @@ Level 1：詳細數據流
 
 ## 四、編碼實現
 
-### 4.1 核心模組實現清單
-
-| 模組 | 實現方式 | 檔案 | 預計行數 |
-|------|---------|------|---------|
-| **Game Logic** | Processing Java | `TetrisGame.java` | 500-800 |
-| **Rendering** | Processing Graphics | `TetrisRenderer.java` | 300-400 |
-| **Socket Server** | Java/C# Socket | `GameServer.java` | 200-300 |
-| **DQN Model** | TensorFlow/PyTorch | `dqn_model.py` | 300-400 |
-| **Experience Replay** | Python List/Deque | `replay_buffer.py` | 100-150 |
-| **Agent Training** | Python Main Loop | `train_agent.py` | 400-500 |
-| **Feature Extractor** | NumPy Calculation | `feature_extractor.py` | 150-200 |
-| **Communication** | Socket Protocol | `communication.py` | 200-300 |
-
-### 4.2 核心算法實現
-
-#### DQN 訓練循環虛擬碼
-
-```python
-# 初始化
-Initialize DQN network with parameters θ
-Initialize target network with parameters θ⁻ = θ
-Initialize replay buffer D = empty
-
-# 訓練循環
-For episode = 1 to max_episodes:
-    Initialize state s₀ from game
-    
-    For step = 1 to max_steps:
-        # 選擇動作 (ε-greedy)
-        With probability ε: Select random action a
-        Otherwise: a = argmax_a' Q(s, a'; θ)
-        
-        # 執行動作，獲取轉移
-        Execute action a in game
-        Observe reward r and next state s'
-        
-        # 儲存經驗
-        Store transition (s, a, r, s', done) in D
-        
-        # 訓練 (每 C 步更新一次)
-        If step % C == 0:
-            Sample mini-batch of transitions from D
-            
-            For each transition (s_i, a_i, r_i, s'_i, done_i):
-                If done_i:
-                    Q_target = r_i
-                Else:
-                    Q_target = r_i + γ × max_a' Q(s'_i, a'; θ⁻)
-                
-                Q_predict = Q(s_i, a_i; θ)
-                
-                Calculate loss: L(θ) = (Q_target - Q_predict)²
-                
-                Perform gradient descent: θ ← θ - α × ∇_θ L(θ)
-        
-        # 更新目標網路
-        If step % update_frequency == 0:
-            θ⁻ = θ
-        
-        If done: break
-    
-    # 衰減探索率
-    ε = ε × decay_rate
-```
-
-### 4.3 代碼結構示例
-
-**Python DQN Agent 結構：**
-
-```python
-class DQNAgent:
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size        # 4
-        self.action_size = action_size      # 6
-        self.model = self._build_model()
-        self.target_model = self._build_model()
-        self.replay_buffer = ReplayBuffer()
-    
-    def _build_model(self):
-        # Sequential: Dense(64) → ReLU → Dense(64) → ReLU → Dense(6)
-        model = Sequential([
-            Dense(64, activation='relu', input_dim=4),
-            Dense(64, activation='relu'),
-            Dense(6)
-        ])
-        model.compile(optimizer=Adam(lr=0.001), loss='mse')
-        return model
-    
-    def remember(self, state, action, reward, next_state, done):
-        self.replay_buffer.add((state, action, reward, next_state, done))
-    
-    def act(self, state):
-        # ε-Greedy 策略
-        if np.random.rand() <= epsilon:
-            return np.random.choice(self.action_size)
-        q_values = self.model.predict(state)
-        return np.argmax(q_values[0])
-    
-    def replay(self, batch_size):
-        batch = self.replay_buffer.sample(batch_size)
-        
-        states = np.array([x[0] for x in batch])
-        actions = np.array([x[1] for x in batch])
-        rewards = np.array([x[2] for x in batch])
-        next_states = np.array([x[3] for x in batch])
-        dones = np.array([x[4] for x in batch])
-        
-        # Bellman 目標值
-        targets = self.model.predict(states)
-        target_next = self.target_model.predict(next_states)
-        
-        for i in range(batch_size):
-            if dones[i]:
-                targets[i][actions[i]] = rewards[i]
-            else:
-                targets[i][actions[i]] = rewards[i] + gamma * np.max(target_next[i])
-        
-        # 訓練模型
-        self.model.fit(states, targets, epochs=1, verbose=0)
-    
-    def update_target_model(self):
-        self.target_model.set_weights(self.model.get_weights())
-```
+*（此章節將在後續迭代中補充）*
 
 ---
 
@@ -592,10 +444,10 @@ Episode 501-1000: Loss ≈ 0.3-0.5      (穩定波動)
 | 階段 | 工作項目 | 完成期限 | 進度 |
 |------|---------|---------|------|
 | **需求分析** | 需求規格定義 | Week 1 | ✓ |
-| **系統設計** | 架構設計、算法設計 | Week 2-3 | ✓ |
-| **核心開發** | DQN 模型、遊戲引擎 | Week 4-6 | 進行中 |
-| **集成開發** | 通訊集成、系統測試 | Week 7-8 | 待開始 |
-| **性能優化** | 調優參數、性能測試 | Week 9 | 待開始 |
+| **系統分析** | 架構設計、算法設計 | Week 2-3 | ✓ |
+| **系統設計** | 詳細設計、模組規劃 | Week 3-4 | ✓ |
+| **編碼實現** | 核心模組開發 | Week 5-8 | 待開始 |
+| **驗證測試** | 測試與優化 | Week 9-10 | 待開始 |
 | **文檔交付** | 技術文檔、報告編寫 | Week 10 | 待開始 |
 
 ---
@@ -611,4 +463,4 @@ Episode 501-1000: Loss ≈ 0.3-0.5      (穩定波動)
 
 **最後更新**: 2025-11-23  
 **作者**: TetrAI Development Team  
-**版本**: 1.0
+**版本**: 2.1（Mermaid 圖表版本）
