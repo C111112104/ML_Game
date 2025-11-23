@@ -75,36 +75,6 @@
 
 # 第二部分：系統分析
 
-## 2.1 系統邊界與上下文圖
-
-```mermaid
-graph TB
-    subgraph System["乒乓球遊戲 AI 系統"]
-        direction LR
-        GE["🎮 遊戲引擎<br/>物理模擬"]
-        AI["🤖 AI決策模組<br/>ML模型"]
-        TR["📚 訓練模組<br/>RL框架"]
-        DM["💾 數據管理<br/>存儲/緩衝"]
-        UI["🎨 視覺化模組<br/>UI/監控"]
-        
-        GE <--> AI
-        AI <--> TR
-        TR <--> DM
-        DM <--> UI
-    end
-    
-    subgraph External["外部環境"]
-        OS["🖥️ OS環境"]
-        PY["🐍 Python環境"]
-        HW["⚙️ CPU/GPU硬體"]
-    end
-    
-    System -.輸入/輸出.- External
-    
-    style System fill:#e1f5ff
-    style External fill:#fff3e0
-```
-
 ## 2.2 用例圖 (Use Case)
 
 | 用例           | 參與者     | 描述                    |
