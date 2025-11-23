@@ -162,17 +162,17 @@ Q(s, a) ≈ NN(s; θ)
 graph LR
     GameState["遊戲狀態<br/>Game State"]
     FeatureExtract["特徵提取<br/>Feature Extract<br/>行數/洞/高度差/凹凸度"]
-    DQNNetwork["DQN 神經網路<br/>NN(s; θ)<br/>計算 Q 值"]
-    QValues["Q 值<br/>6 個動作的<br/>期望回報"]
-    ActionSelect["動作選擇<br/>argmax(Q)<br/>選最優動作"]
-    Action["執行動作<br/>Action"]
-    Executor["遊戲引擎執行<br/>Game Engine"]
-    Transition["狀態轉移<br/>r, s', done"]
-    ExpBuffer["經驗緩衝<br/>Experience Buffer<br/>存儲 s,a,r,s'"]
-    MiniBatch["小批次採樣<br/>Mini-batch"]
-    Training["訓練計算<br/>L(θ)"]
-    Backprop["反向傳播<br/>∂L/∂θ"]
-    Update["參數更新<br/>θ←θ-α∇L"]
+    DQNNetwork["DQN 神經網路<br/>NN計算Q值"]
+    QValues["Q 值<br/>6 個動作"]
+    ActionSelect["動作選擇<br/>argmax"]
+    Action["執行動作"]
+    Executor["遊戲引擎"]
+    Transition["狀態轉移<br/>獲得獎勵"]
+    ExpBuffer["經驗緩衝區"]
+    MiniBatch["小批次採樣"]
+    Training["訓練計算"]
+    Backprop["反向傳播"]
+    Update["參數更新"]
     
     GameState --> FeatureExtract
     FeatureExtract --> DQNNetwork
@@ -203,16 +203,16 @@ graph TD
     C["Socket Server<br/>通訊服務"]
     D["Python AI Agent<br/>人工智能"]
     
-    B1["Game Logic Module<br/>遊戲邏輯<br/>碰撞/消行/方塊管理"]
-    B2["Rendering Engine<br/>渲染引擎<br/>視覺化/畫面更新"]
-    B3["State Manager<br/>狀態管理<br/>遊戲狀態維護"]
+    B1["Game Logic Module<br/>遊戲邏輯"]
+    B2["Rendering Engine<br/>渲染引擎"]
+    B3["State Manager<br/>狀態管理"]
     
-    C1["Communication Handler<br/>通訊處理<br/>數據傳輸"]
-    C2["Message Queue<br/>消息隊列<br/>異步通訊"]
+    C1["Communication Handler<br/>通訊處理"]
+    C2["Message Queue<br/>消息隊列"]
     
-    D1["DQN Model<br/>深度 Q 網路<br/>神經網路計算"]
-    D2["Experience Replay<br/>經驗回放機制<br/>批量訓練"]
-    D3["Decision Engine<br/>決策引擎<br/>動作選擇"]
+    D1["DQN Model<br/>深度Q網路"]
+    D2["Experience Replay<br/>經驗回放"]
+    D3["Decision Engine<br/>決策引擎"]
     
     A --> B
     A --> C
@@ -263,61 +263,77 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant Processing as Processing Engine
-    participant Socket as Socket Server
-    participant Python as Python AI Agent
-
-    Processing->>Socket: ① 遊戲狀態
-    Socket->>Python: ② 特徵提取 (state features)
-    Python->>Socket: ③ 前向傳播 NN(s;θ)，回傳 Q-Values
-    Socket->>Python: ④ Argmax選擇最優動作
-    Socket->>Processing: ⑤ 執行動作
-    Processing->>Socket: ⑥ 遊戲更新/狀態轉移
-    Socket->>Python: ⑦ 獎勵 r 和下一狀態 s'
-    Python->>Python: ⑧ 存儲 (s,a,r,s') 到經驗回放
-    Python->>Python: ⑨ 計算損失 L(θ)、反向傳播、參數更新
-    Note over Processing,Python: 重複上述步驟迴圈進行訓練
-
+    autonumber
+    participant PE as Processing Engine
+    participant SS as Socket Server
+    participant PA as Python AI Agent
+    
+    PE->>SS: 遊戲狀態信息
+    SS->>PA: 提取特徵向量
+    PA->>SS: 計算Q值數組
+    SS->>PA: 選擇最大Q值動作
+    SS->>PE: 發送執行動作
+    PE->>SS: 返回轉移結果
+    SS->>PA: 傳遞獎勵r和新狀態s
+    PA->>PA: 存入重放緩衝區
+    PA->>PA: 計算損失函數L
+    PA->>PA: 反向傳播梯度
+    PA->>PA: 梯度下降更新參數
+    Note over PE,PA: 重複步驟1-11進行訓練迭代
 ```
+
+**MSC 步驟說明：**
+
+| 步驟 | 模組交互 | 說明 |
+|------|---------|------|
+| 1 | Processing → Socket | 遊戲狀態信息 |
+| 2 | Socket → Python | 提取特徵向量 |
+| 3 | Python → Socket | 計算Q值數組 |
+| 4 | Socket → Python | 選擇最大Q值動作 |
+| 5 | Socket → Processing | 發送執行動作 |
+| 6 | Processing → Socket | 返回轉移結果 |
+| 7 | Socket → Python | 傳遞獎勵r和新狀態s |
+| 8-11 | Python 內部 | 存儲經驗、計算損失、反向傳播、更新參數 |
+| 循環 | 全系統 | 重複步驟1-11進行訓練迭代 |
 
 ### 3.4 Data Flow Diagram (DFD)
 
 ```mermaid
 graph TB
     subgraph Input["輸入層"]
-        State["遊戲狀態向量<br/>State s"]
+        State["遊戲狀態向量"]
     end
     
     subgraph Process1["特徵提取"]
-        Extract["提取 4 維特徵<br/>• 堆積高度<br/>• 洞數<br/>• 高度差<br/>• 凹凸度"]
+        Extract["提取4維特徵<br/>堆積高度/洞數/高度差/凹凸度"]
     end
     
-    subgraph Process2["DQN 計算"]
-        NN["神經網路前向傳播<br/>NN(features; θ)"]
+    subgraph Process2["DQN計算"]
+        NN["神經網路前向傳播"]
     end
     
     subgraph Output1["動作決策"]
-        QVals["Q-Values<br/>6 個動作"]
-        Select["Argmax 選擇<br/>最優動作"]
+        QVals["Q值數組"]
+        Select["Argmax選擇"]
     end
     
     subgraph Execute["執行"]
-        Act["動作執行<br/>Action a"]
+        Act["動作執行"]
     end
     
     subgraph Transition["狀態轉移"]
-        Trans["遊戲更新<br/>獲得獎勵 r<br/>下一狀態 s'"]
+        Trans["遊戲更新獲得獎勵"]
     end
     
     subgraph Memory["經驗記憶"]
-        Buffer["Experience Replay Buffer<br/>存儲 (s,a,r,s',done)"]
-        Sample["隨機採樣 Mini-batch"]
+        Buffer["Experience Replay"]
+        Sample["Mini-batch採樣"]
     end
     
     subgraph Training["訓練"]
-        Loss["計算損失<br/>L(θ) = (Q_t - Q_p)²"]
-        Backprop["反向傳播<br/>計算梯度 ∂L/∂θ"]
-        UpdateParam["參數更新<br/>θ ← θ - α∇L(θ)"]
+        Loss["損失計算"]
+        Backprop["反向傳播"]
+        UpdateParam["參數更新"]
     end
     
     State --> Extract
@@ -463,4 +479,4 @@ Episode 501-1000: Loss ≈ 0.3-0.5      (穩定波動)
 
 **最後更新**: 2025-11-23  
 **作者**: TetrAI Development Team  
-**版本**: 2.1（Mermaid 圖表版本）
+**版本**: 2.2（MSC 修正版本）
