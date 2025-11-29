@@ -1,5 +1,5 @@
 # 機器學習專題 - 乒乓球遊戲 AI 系統
-
+ 
 ---
 
 # 目錄
@@ -334,35 +334,35 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant User as 玩家
     participant Game as 遊戲引擎
     participant AI as AI決策
     participant Model as DQN模型
     participant UI as UI顯示
-    
+
     User->>Game: 啟動遊戲
-    Game->>Game: 初始化狀態S₀
-    
-    loop WHILE 遊戲進行中
-        Game->>AI: 發送狀態S
-        AI->>Model: 查詢Q(S,A)值
-        Model-->>AI: 返回[Q_left, Q_mid, Q_right]
-        AI->>AI: argmax選擇最佳動作
-        AI->>Game: 返回動作A
-        
-        Game->>Game: 執行動作
-        Game->>Game: 計算獎勵、更新狀態S'
+    Game->>Game: 初始化狀態 S0
+
+    loop 遊戲進行中
+        Game->>AI: 發送狀態 S
+        AI->>Model: 查詢 Q(S,a)
+        Model-->>AI: 返回 Q 值 (left, stay, right)
+        AI->>AI: argmax 選擇最佳動作
+        AI->>Game: 返回動作 A
+
+        Game->>Game: 執行動作並更新 S'
         Game->>UI: 渲染畫面
-        
+
         alt 遊戲未結束
-            Note over Game: 繼續迴圈
+            Note over Game: 繼續下一幀
         else 遊戲結束
             Game->>UI: 顯示最終得分
-            break
         end
     end
-    
-    User->>User: 遊戲結束
+
+    Note over User,UI: 遊戲流程結束
+
 ```
 
 ## 3.6 系統架構圖
