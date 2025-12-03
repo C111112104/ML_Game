@@ -63,33 +63,6 @@
 
 ## 二、系統分析
 
-### 2.1 系統架構概述
-
-```mermaid
-graph TB
-    subgraph Processing["Processing Engine<br/>(Java)"]
-        GameLogic["Game Logic Module<br/>- 碰撞檢測<br/>- 方塊管理<br/>- 消行判定"]
-        Renderer["Rendering Engine<br/>- 視覺化<br/>- 畫面更新"]
-        StateManager["State Manager<br/>- 遊戲狀態<br/>- 特徵提取"]
-    end
-    
-    subgraph Socket["Socket Server<br/>(Java/C#)"]
-        CommHandler["Communication Handler<br/>- 實時數據傳輸"]
-        MessageQueue["Message Queue<br/>- 命令分發<br/>- 非同步通訊"]
-    end
-    
-    subgraph Python["Python AI Agent<br/>(Python)"]
-        DQNModel["DQN Model<br/>- 神經網路<br/>- Q值計算"]
-        ExpReplay["Experience Replay<br/>- 經驗存儲<br/>- 批量採樣"]
-        Decision["Decision Engine<br/>- 動作選擇<br/>- 策略學習"]
-    end
-    
-    Processing <-->|Socket通訊| Socket
-    Socket <-->|遊戲狀態/動作| Python
-    DQNModel --> Decision
-    ExpReplay --> DQNModel
-```
-
 ### 2.2 DQN 演算法核心
 
 #### 2.2.1 Q-Learning 基礎
@@ -156,81 +129,12 @@ Q(s, a) ≈ NN(s; θ)
 5. **參數更新**：θ ← θ - α × ∂L/∂θ（沿梯度反方向移動）
 6. **循環迭代**：重複直至 L(θ) 收斂
 
-### 2.4 系統數據流
-
-```mermaid
-graph LR
-    GameState["遊戲狀態<br/>Game State"]
-    FeatureExtract["特徵提取<br/>Feature Extract<br/>行數/洞/高度差/凹凸度"]
-    DQNNetwork["DQN 神經網路<br/>NN計算Q值"]
-    QValues["Q 值<br/>6 個動作"]
-    ActionSelect["動作選擇<br/>argmax"]
-    Action["執行動作"]
-    Executor["遊戲引擎"]
-    Transition["狀態轉移<br/>獲得獎勵"]
-    ExpBuffer["經驗緩衝區"]
-    MiniBatch["小批次採樣"]
-    Training["訓練計算"]
-    Backprop["反向傳播"]
-    Update["參數更新"]
-    
-    GameState --> FeatureExtract
-    FeatureExtract --> DQNNetwork
-    DQNNetwork --> QValues
-    QValues --> ActionSelect
-    ActionSelect --> Action
-    Action --> Executor
-    Executor --> Transition
-    Transition --> ExpBuffer
-    ExpBuffer --> MiniBatch
-    MiniBatch --> Training
-    Training --> Backprop
-    Backprop --> Update
-    Update -.循環迭代.-> DQNNetwork
-```
 
 ---
 
 ## 三、系統設計
 
-### 3.1 系統模組分支結構
-
-```mermaid
-graph TD
-    A["TetrAI System<br/>主系統"]
-    
-    B["Processing Engine<br/>遊戲引擎"]
-    C["Socket Server<br/>通訊服務"]
-    D["Python AI Agent<br/>人工智能"]
-    
-    B1["Game Logic Module<br/>遊戲邏輯"]
-    B2["Rendering Engine<br/>渲染引擎"]
-    B3["State Manager<br/>狀態管理"]
-    
-    C1["Communication Handler<br/>通訊處理"]
-    C2["Message Queue<br/>消息隊列"]
-    
-    D1["DQN Model<br/>深度Q網路"]
-    D2["Experience Replay<br/>經驗回放"]
-    D3["Decision Engine<br/>決策引擎"]
-    
-    A --> B
-    A --> C
-    A --> D
-    
-    B --> B1
-    B --> B2
-    B --> B3
-    
-    C --> C1
-    C --> C2
-    
-    D --> D1
-    D --> D2
-    D --> D3
-```
-
-### 3.2 WBS 結構圖
+### 3.1 Work Breakdown Structure (WBS) - 系統模組分支結構
 
 ![TetrAI System Breakdown](https://i.imgur.com/ePbRhkg.png)
 
@@ -240,26 +144,27 @@ graph TD
 - TetrAI System：整個項目頂層
 
 **Level 2: 三大主模組**
-- Processing Engine：遊戲引擎
-- Socket Server：通訊服務
-- Python AI Agent：人工智能
+- Processing Engine (遊戲引擎)
+- Socket Server (通訊服務)
+- Python AI Agent (人工智能)
 
 **Level 3: 子模組**
 - **Processing Engine**
-  - Game Logic Module：遊戲邏輯（碰撞檢測、方塊管理、消行）
-  - Rendering Engine：渲染引擎（視覺化）
-  - State Manager：狀態管理（遊戲狀態維護）
+  - Game Logic Module (遊戲邏輯模組)：碰撞檢測、方塊管理、消行判定
+  - Rendering Engine (渲染引擎)：視覺化、畫面更新
+  - State Manager (狀態管理器)：遊戲狀態維護、特徵提取
 
 - **Socket Server**
-  - Communication Handler：通訊處理
-  - Message Queue：消息隊列（異步通訊）
+  - Communication Handler (通訊處理器)：實時數據傳輸
+  - Message Queue (消息隊列)：命令分發、非同步通訊
 
 - **Python AI Agent**
-  - DQN Model：深度 Q 網路
-  - Experience Replay：經驗回放機制
-  - Decision Engine：決策引擎
+  - DQN Model (深度Q網路)：神經網路、Q值計算
+  - Experience Replay (經驗回放)：經驗存儲、批量採樣
+  - Decision Engine (決策引擎)：動作選擇、策略學習
 
-### 3.3 Message Sequence Chart (MSC) - 系統流程
+
+### 3.2 Message Sequence Chart (MSC) - 系統流程
 
 ```mermaid
 sequenceDiagram
@@ -296,7 +201,7 @@ sequenceDiagram
 | 8-11 | Python 內部 | 存儲經驗、計算損失、反向傳播、更新參數 |
 | 循環 | 全系統 | 重複步驟1-11進行訓練迭代 |
 
-### 3.4 Data Flow Diagram (DFD)
+### 3.3 Data Flow Diagram (DFD)
 
 ```mermaid
 graph TB
@@ -351,7 +256,7 @@ graph TB
     UpdateParam -.循環迴饋.-> NN
 ```
 
-### 3.5 技術棧設計
+### 3.4 技術棧設計
 
 | 層級 | 技術 | 選型理由 |
 |------|------|--------|
@@ -430,28 +335,6 @@ graph TB
   - [ ] 遊戲表現達標 (100+ 行/局)
   - [ ] 損失函數穩定
   - [ ] 無訓練異常
-
-### 5.5 測試結果示例
-
-**訓練曲線示例：**
-
-```
-Episode 1-100:   Loss ↓ 100.0 → 45.0  (快速下降階段)
-Episode 101-300: Loss ↓ 45.0 → 10.0   (穩定下降階段)
-Episode 301-500: Loss ↓ 10.0 → 0.5    (收斂階段)
-Episode 501-1000: Loss ≈ 0.3-0.5      (穩定波動)
-```
-
-**性能測試結果：**
-
-| 指標 | 目標 | 實際 | 狀態 |
-|------|------|------|------|
-| FPS | 60 | 59.8 | ✓ Pass |
-| 決策延遲 | < 50ms | 38ms | ✓ Pass |
-| 平均消行 | 100+ | 128 | ✓ Pass |
-| 最高紀錄 | 1000+ | 1264 | ✓ Pass |
-| 訓練時間 | 2-4h | 3.2h | ✓ Pass |
-| 內存使用 | < 2GB | 1.8GB | ✓ Pass |
 
 ---
 
