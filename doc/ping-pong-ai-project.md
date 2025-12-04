@@ -14,7 +14,7 @@
 - [系統分析](#-系統分析)
 - [系統設計](#-系統設計)
 - [編碼實現](#-編碼實現)
-- [驗證與測試](#-驗證與測試)
+- [待測試與測試](#-待測試與測試)
 - [參考資源](#-參考資源)
 
 ---
@@ -353,11 +353,11 @@ graph LR
     H2 -->|全連接| H3[隱藏層 3<br/>32 neurons<br/>ReLU]
     H3 -->|全連接| O[輸出層<br/>3 維度<br/>Linear]
 
-    style I fill:#e1f5ff
-    style H1 fill:#fff4e1
-    style H2 fill:#fff4e1
-    style H3 fill:#fff4e1
-    style O fill:#e8f5e9
+    style I fill:#e1f5ff,color:#000
+    style H1 fill:#fff4e1,color:#000
+    style H2 fill:#fff4e1,color:#000
+    style H3 fill:#fff4e1,color:#000
+    style O fill:#e8f5e9,color:#000
 ```
 
 **參數計算**:
@@ -505,7 +505,7 @@ SAVE_INTERVAL = 50
 
 ---
 
-## ✅ 驗證與測試
+## ✅ 待測試與測試
 
 ### 5.1 測試計劃
 
@@ -707,62 +707,9 @@ Loss ↓
 ├─ 系統分析 ✅ 100%
 ├─ 系統設計 ✅ 100%
 ├─ 編碼實現 🔄 80% (待完善文檔)
-└─ 驗證測試 ✅ 95% (基準測試完成)
+└─ 待測試測試 ✅ 95% (基準測試完成)
 ```
 
 **最後更新**: 2025-12-04  
 **版本**: v1.0.0  
 **授權**: MIT License
-
----
-
-## 🚀 快速開始
-
-### 安裝依賴
-
-```bash
-pip install torch torchvision pygame numpy matplotlib
-```
-
-### 訓練模型
-
-```bash
-python main.py --mode train --episodes 1000
-```
-
-### 測試模型
-
-```bash
-python main.py --mode test --model_path ./models/best_model.pth
-```
-
-### 監控訓練
-
-```bash
-tensorboard --logdir=./logs
-```
-
----
-
-## 👥 貢獻者
-
-- **專案負責人**: [你的名字]
-- **指導教授**: [教授名字]
-- **課程**: 機器學習專題
-
----
-
-## 📧 聯絡方式
-
-- Email: your.email@example.com
-- GitHub: [github.com/yourusername](https://github.com/yourusername)
-
----
-
-<div align="center">
-
-**⭐ 如果這個專案對你有幫助，請給個 Star！**
-
-Made with ❤️ by [Your Name]
-
-</div>
