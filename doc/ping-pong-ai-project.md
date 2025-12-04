@@ -686,7 +686,6 @@ $$\bar{Q}(t) = \frac{1}{|B|}\sum_{(s,a) \in B} Q_\theta(s,a)$$
 - CPU: 待配置
 - GPU: 待配置
 - RAM: 待配置
-- OS: Ubuntu 22.04 (ARM64)
 
 ### 5.4 訓練曲線分析
 
