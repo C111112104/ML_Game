@@ -98,32 +98,6 @@ AI 模型:
 
 ## 📊 系統分析
 
-### 2.1 用例圖 (Use Case)
-
-```mermaid
-graph TB
-    subgraph 系統邊界
-        UC1[訓練 Dueling DQN 模型]
-        UC2[執行 Atari Pong 遊戲]
-        UC3[評估模型性能]
-        UC4[保存/加載模型檢查點]
-        UC5[監控訓練指標]
-    end
-
-    Developer[開發者] -->|訓練| UC1
-    Developer -->|保存| UC4
-    Developer -->|監控| UC5
-
-    Player[測試者] -->|對戰| UC2
-
-    Researcher[研究員] -->|評估| UC3
-    Researcher -->|加載| UC4
-
-    UC1 -.->|include| UC4
-    UC1 -.->|include| UC5
-    UC2 -.->|include| UC4
-```
-
 ### 2.2 參數與損失函數的含義
 
 #### 2.2.1 Dueling DQN 參數定義
