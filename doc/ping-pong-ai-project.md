@@ -335,36 +335,13 @@ Atari 原始幀 (210×160×3 RGB)
 
 ```mermaid
 graph TB
-    Root[Atari Pong AI 系統] --> M1[🎮 Gym 環境模組]
-    Root --> M2[🖼️ 圖像處理模組]
-    Root --> M3[🤖 Dueling DQN 模組]
-    Root --> M4[🎓 訓練模組]
-    Root --> M5[💾 數據管理模組]
-    Root --> M6[📊 監控視覺化模組]
-
-    M1 --> M11[環境初始化]
-    M1 --> M12[動作執行]
-    M1 --> M13[獎勵獲取]
-
-    M2 --> M21[圖像裁剪]
-    M2 --> M22[灰度轉換]
-    M2 --> M23[幀堆疊]
-
-    M3 --> M31[CNN 特徵提取]
-    M3 --> M32[Dueling 架構]
-    M3 --> M33[Q 值計算]
-
-    M4 --> M41[ε-greedy 探索]
-    M4 --> M42[Double DQN 訓練]
-    M4 --> M43[目標網絡更新]
-
-    M5 --> M51[經驗回放緩衝]
-    M5 --> M52[模型檢查點]
-    M5 --> M53[訓練日誌]
-
-    M6 --> M61[Reward 曲線]
-    M6 --> M62[Avg Q 值曲線]
-    M6 --> M63[實時監控]
+  Root["Atari Pong AI 系統"] --> M1["preProcess"]
+  Root --> M2["act"]
+  Root --> M3["Q 值計算"]
+  Root --> M4["storeResults"]
+  Root --> M5["train 更新"]
+  Root --> M6["Target 更新"]
+  Root --> M7["Epsilon 衰減"]
 ```
 
 ### 3.2 資料流圖 (Data Flow Diagram)
@@ -385,122 +362,131 @@ graph LR
 
 ```mermaid
 graph TB
-    Input[輸入層] -->|RGB 圖像| Process[處理層]
-    Input -->|訓練配置| Process
-    Input -->|檢查點檔案| Process
-
-    Process -->|預處理| P1[圖像處理]
-    Process -->|決策| P2[Dueling DQN]
-    Process -->|學習| P3[Double DQN 訓練]
-    Process -->|存儲| P4[經驗回放]
-
-    P1 -->|4幀堆疊| P2
-    P2 -->|Q 值| Output[輸出層]
-    P3 -->|損失值| Output
-    P4 -->|採樣批次| P3
-
-    Output -->|動作| GymEnv[Gym 環境]
-    Output -->|模型權重| Storage[(存儲)]
-    Output -->|統計數據| Monitor[監控系統]
+    Input["輸入層"]
+    Process["處理層"]
+    P1["圖像處理"]
+    P2["Dueling DQN"]
+    P3["Double DQN 訓練"]
+    P4["經驗回放"]
+    Output["輸出層"]
+    GymEnv["Gym 環境"]
+    Storage["存儲"]
+    Monitor["監控系統"]
+    
+    Input -->|ndarray uint8 shape: 210x160x3| Process
+    Input -->|dict config| Process
+    Input -->|pkl checkpoint| Process
+    
+    Process -->|ndarray float32 shape: 4x80x64| P1
+    Process -->|input state| P2
+    Process -->|batch data| P3
+    Process -->|transition tuple| P4
+    
+    P1 -->|ndarray float32 shape: 4x80x64| P2
+    P2 -->|Tensor float32 shape: batch x6| Output
+    P3 -->|Tensor float32 scalar| Output
+    P4 -->|list of tuples from deque| P3
+    
+    Output -->|int action 0-5| GymEnv
+    Output -->|OrderedDict weights| Storage
+    Output -->|dict metrics| Monitor
 ```
 
 ### 3.3 訓練流程序列圖 (Training MSC)
 
 ```mermaid
 sequenceDiagram
-    participant Dev as 開發者
-    participant Env as Gym 環境
-    participant Pre as 圖像預處理
-    participant Agent as Dueling DQN Agent
-    participant Mem as 經驗回放池
-    participant Train as Double DQN 訓練器
+  participant Dev as "開發者"
+  participant Env as "Gym 環境"
+  participant A_PP as "Agent.preProcess()"
+  participant A_Act as "Agent.act()"
+  participant C_Fwd as "DuelCNN.forward()"
+  participant A_SR as "Agent.storeResults()"
+  participant A_Train as "Agent.train()"
+  participant Mem as "Replay Memory (Agent.memory)"
+  participant A_AE as "Agent.adaptiveEpsilon()"
+  participant Target as "Target Model Update"
 
-    Dev->>Env: 初始化 PongDeterministic-v4
-    Env-->>Dev: 返回初始幀 (210×160×3)
+  Dev->>Env: "初始化 (environment.reset())"
+  Env-->>Dev: "初始幀 (s_0)"
+  Dev->>A_PP: "處理 s_0"
+  A_PP-->>Dev: "初始堆疊狀態 s_stack"
 
-    loop 訓練迴圈 (每個 Episode)
-        Env->>Pre: 獲取當前幀
-        Pre->>Pre: 裁剪+灰度+縮放+堆疊
-        Pre-->>Agent: 4幀狀態 (4×80×64)
-
-        Agent->>Agent: ε-greedy 選擇動作
-        alt 探索 (ε)
-            Agent->>Agent: 隨機動作
-        else 利用 (1-ε)
-            Agent->>Agent: argmax Q(s,a)
-        end
-
-        Agent-->>Env: 執行動作 a
-        Env->>Env: 模擬物理
-        Env-->>Agent: (next_frame, reward, done)
-
-        Agent->>Mem: 存儲 (s, a, r, s', done)
-
-        alt 記憶充足 (len ≥ 40000)
-            Train->>Mem: 隨機採樣 64 transitions
-            Mem-->>Train: 返回批次數據
-
-            Train->>Agent: Online Net 選擇 a'
-            Train->>Agent: Target Net 評估 Q(s',a')
-            Train->>Train: 計算 Double DQN Loss
-            Train->>Agent: 反向傳播更新 θ
-            Agent-->>Train: 返回 Loss 值
-        end
-
-        alt Episode 結束
-            Train->>Agent: 硬更新 Target Net
-            Agent-->>Dev: 統計數據 (Reward, Loss, Q)
-        end
-
-        alt 每 1000 步
-            Dev->>Agent: 衰減 ε *= 0.99
-        end
-
-        alt 每 10 episodes
-            Dev->>Storage: 保存模型檢查點
-            Dev->>Storage: 保存訓練日誌
-        end
+  loop "訓練迴圈 (每個 Episode)"
+    Dev->>A_Act: "選擇動作 (s_stack)"
+    alt "利用 (1 - epsilon)"
+      A_Act->>C_Fwd: "Online Model Q(s_stack)"
+      C_Fwd-->>A_Act: "Q 值"
     end
+    A_Act-->>Env: "執行動作 a"
+    Env-->>Dev: "回傳 (s', r, done)"
+
+    Dev->>A_PP: "處理 s'"
+    A_PP-->>Dev: "next_s_stack"
+    Dev->>A_SR: "存儲 (s_stack, a, r, next_s_stack, done)"
+    A_SR->>Mem: "存入 deque"
+
+    alt "記憶充足 (len >= MIN_MEMORY_LEN)"
+      Dev->>A_Train: "訓練"
+      A_Train->>Mem: "隨機採樣 BATCH_SIZE"
+      Mem-->>A_Train: "Batch"
+      A_Train->>C_Fwd: "Online Q(s), Target Q(s')"
+      C_Fwd-->>A_Train: "Q / Target Q 值"
+      A_Train->>A_Train: "計算 Loss 並 Backprop"
+      A_Train-->>Dev: "返回 (Loss, Max Q)"
+    end
+
+    alt "Episode 結束 (done == true)"
+      Dev->>Target: "Target Model.load_state_dict()"
+      Dev->>Dev: "紀錄統計數據"
+    end
+
+    alt "每 1000 步"
+      Dev->>A_AE: "adaptiveEpsilon()"
+    end
+  end
 ```
 
 ### 3.4 推理流程序列圖 (Inference MSC)
 
 ```mermaid
 sequenceDiagram
-    participant User as 測試者
-    participant Load as 模型加載器
-    participant Env as Gym 環境
-    participant Pre as 圖像預處理
-    participant DQN as Dueling DQN
+  participant User as "測試者"
+  participant Storage as "檔案系統"
+  participant DQN as "Dueling DQN (Agent)"
+  participant Env as "Gym 環境"
+  participant A_PP as "Agent.preProcess()"
+  participant C_Fwd as "DuelCNN.forward()"
 
-    User->>Load: 啟動測試模式
-    Load->>Load: LOAD_MODEL_FROM_FILE=True
-    Load->>Load: LOAD_FILE_EPISODE=900
-    Load->>DQN: 載入權重 pong-cnn-900.pkl
-    Load->>DQN: 載入 ε 值 (通常為 0.05)
-    DQN-->>User: 模型就緒
+  User->>DQN: "初始化 Agent (LOAD_MODEL_FROM_FILE true)"
+  DQN->>Storage: "載入權重 (.pkl)"
+  DQN->>Storage: "載入 epsilon 值 (.json)"
+  Storage-->>DQN: "載入完成, epsilon = 0.05"
+  DQN-->>User: "推理模型就緒"
 
-    User->>Env: 初始化環境
-    Env-->>User: 返回初始幀
+  User->>Env: "environment.reset()"
+  Env-->>User: "初始幀"
+  User->>A_PP: "處理初始幀"
+  A_PP-->>User: "初始堆疊狀態 s_stack"
 
-    loop 遊戲迴圈
-        Env->>Pre: 獲取當前幀
-        Pre-->>DQN: 預處理後狀態 (4×80×64)
-
-        alt 測試模式 (ε=0.05)
-            DQN->>DQN: 以 95% 概率 argmax
-            DQN->>DQN: 以 5% 概率隨機探索
-        end
-
-        DQN-->>Env: 最優動作 a*
-        Env->>Env: 執行動作
-        Env-->>User: 遊戲畫面 & 獎勵
-
-        alt 遊戲結束
-            User->>DQN: 統計遊戲結果
-            DQN-->>User: 顯示勝負與得分
-        end
+  loop "遊戲迴圈 (Inference / Demo)"
+    User->>DQN: "獲取動作 (s_stack)"
+    alt "測試決策 (Argmax / 1 - epsilon)"
+      DQN->>C_Fwd: "Online Model Q(s_stack)"
+      C_Fwd-->>DQN: "Q 值"
+      DQN->>DQN: "選擇 argmax(Q)"
     end
+
+    DQN-->>Env: "執行動作 a*"
+    Env-->>User: "next_frame, reward, done"
+
+    User->>A_PP: "處理 next_frame"
+    A_PP-->>User: "next_s_stack (更新 s_stack)"
+
+    alt "遊戲結束 (done == true)"
+      User->>User: "顯示最終得分"
+    end
+  end
 ```
 
 ---
