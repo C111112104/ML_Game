@@ -461,6 +461,19 @@ sequenceDiagram
   end
 ```
 
+#### 訓練序列 API 對照表
+
+| 函數/操作 | 類別 | 功能細節 |
+| :--- | :--- | :--- |
+| **環境互動** | `environment.step()` | 接收動作，返回 $s', r, \text{done}$。 |
+| **圖像處理** | `Agent.preProcess()` | 灰度、裁剪、縮放圖像，準備狀態堆疊。 |
+| **動作選擇** | `Agent.act()` | 呼叫 `DuelCNN.forward()` 獲取 Q 值，執行 $\epsilon$-greedy 決策。 |
+| **Q 值預測** | `DuelCNN.forward()` | Online Network 計算 $Q(s, a)$。 |
+| **經驗存儲** | `Agent.storeResults()` | 將 $(s, a, r, s', \text{done})$ 存入 `deque`。 |
+| **DDQN 訓練** | `Agent.train()` | 執行採樣、目標計算、損失計算、梯度下降。 |
+| **Target 更新** | `Agent` (主程式) | 定期將 Online 權重複製到 Target 網路。 |
+| **Epsilon 調整** | `Agent.adaptiveEpsilon()` | 根據衰減率 $\epsilon$ 進行調整。 |
+
 ### 3.4 推理流程序列圖 (Inference MSC)
 
 ```mermaid
@@ -502,6 +515,16 @@ sequenceDiagram
     end
   end
 ```
+
+#### 推理序列 API 對照表
+
+| 函數/操作 | 類別 | 功能細節 |
+| :--- | :--- | :--- |
+| **模型載入** | `Agent` (主程式) | 載入模型權重及 $\epsilon$ 值。 |
+| **圖像處理** | `Agent.preProcess()` | 執行圖像處理並形成 4 幀堆疊狀態。 |
+| **動作選擇** | `Agent.act()` | 在推理模式下，主要執行 **利用 (Exploit)** 決策。 |
+| **Q 值預測** | `DuelCNN.forward()` | Online Network 預測 Q 值以決定最優動作。 |
+| **環境互動** | `environment.step()` | 接收動作並推進遊戲狀態。 |
 
 ---
 
