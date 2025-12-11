@@ -33,7 +33,8 @@
 - 嚴謹 Socket 架構（Processing 遊戲引擎＋Python 智能體）
 - 詳細解構與流程圖，請見：[TetrAI 專題詳細提案](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
 
-- DEMO: https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
+- DEMO:
+- https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 
 
 
