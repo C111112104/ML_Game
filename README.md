@@ -36,8 +36,6 @@
 - DEMO:
 - https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 
-
-
 **核心特性：**
 
 - 多代理訓練（未來將支援 PvP 對戰）
@@ -72,17 +70,10 @@ pip install jax         # 如果沒有GPU
 
 ---
 
-## 🔗 相關文檔
+- 1211 todo:
+- 關於　ping-pong-ai-project.md，
+1. Dueling 的 目標Q值 在 Ben_DQN.py 中 目標Q值 是多少?
+2. Dueling Q 值計算公式中的 A 值代表REWORD嗎? 在 Ben_DQN.py 中 每次 給的 REWORD 是多少?
 
-- [乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
-- [TetrAI 俄羅斯方塊 AI 專題提案](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)  ← 含多張系統流程圖、分析架構圖（推薦線上瀏覽）
-
----
-
-## 📣 補充
-
-- **TetrAI 方案持續更新中，歡迎 PR 與 Issue 討論！**
-- 圖表建議直接在 GitHub 上瀏覽以獲得最佳互動體驗。
-- 任何技術討論、錯誤修正請透過 Issue/New Discussion 提出。
-
----
+- 1218 todo:
+- 
