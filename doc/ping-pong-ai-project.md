@@ -334,14 +334,28 @@ Atari 原始幀 (210×160×3 RGB)
 ### 3.1 系統模組分支圖
 
 ```mermaid
-graph TB
-  Root["Atari Pong AI 系統"] --> M1["preProcess"]
-  Root --> M2["act"]
-  Root --> M3["Q 值計算"]
-  Root --> M4["storeResults"]
-  Root --> M5["train 更新"]
-  Root --> M6["Target 更新"]
-  Root --> M7["Epsilon 衰減"]
+graph TD
+    Root["Atari Pong AI 系統"]
+
+    subgraph Training
+        Root --> Training_Branch("訓練")
+        Training_Branch --> AgentPreProcess("Agent.preProcess()")
+        Training_Branch --> AgentAdaptiveEpsilon("Agent.adaptiveEpsilon()")
+        Training_Branch --> ReplayMemory("Replay Memory (Agent.memory)")
+        Training_Branch --> AgentTrain("Agent.train()")
+        Training_Branch --> AgentStoreResults("Agent.storeResults()")
+        Training_Branch --> DuelCNNForward_Training("DuelCNN.forward()")
+        Training_Branch --> AgentAct("Agent.act()")
+        Training_Branch --> GymEnv_Training("Gym 環境")
+    end
+
+    subgraph Inference
+        Root --> Inference_Branch("推論/執行")
+        Inference_Branch --> DuelCNNForward_Inference("DuelCNN.forward()")
+        Inference_Branch --> AgentPreProcess_Inference("Agent.preProcess()")
+        Inference_Branch --> GymEnv_Inference("Gym 環境")
+        Inference_Branch --> DuelingDQN("Dueling DQN (Agent)")
+    end
 ```
 
 ### 3.2 資料流圖 (Data Flow Diagram)
