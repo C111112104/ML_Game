@@ -11,11 +11,9 @@
 - 利用 Deep Q-Network (DQN) 強化學習訓練遊戲 AI
 - 實作細節與理論請參考：[乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
 
-**特色重點：**
-
-- 深度強化學習智能體設計
-- Bellman 方程、自動回放、目標網路等核心技術
-- 經完整測試與實證
+- DEMO
+ 
+ https://github.com/user-attachments/assets/e838652e-93bc-4dad-8a07-33ef834f0b37
 
 ---
 
@@ -23,17 +21,11 @@
 
 - 強化學習 AI 智能體可自動學習 Tetris 遊戲策略
 - 支援進階行為（B2B、T-Spin、Ghost Piece 等）
-- 嚴謹 Socket 架構（Processing 遊戲引擎＋Python 智能體）
 - 詳細解構與流程圖，請見：[TetrAI 專題詳細提案](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
 
 - DEMO:
 - https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
-
-**核心特性：**
-
-- 多代理訓練（未來將支援 PvP 對戰）
-- DQN 與遺傳演算法混合策略
-
+- 
 ---
 
 ## Tetris AI 專案 SOP
@@ -51,13 +43,6 @@ graph LR
 
 由於 TetrAI 程式碼過大（523.3 MB），改暫存於 Google 雲端硬碟：  
 https://drive.google.com/drive/folders/10AiN1cVYvmfvcFvaL1PQcXy3FlwcxihK?usp=sharing 
-
-建議在本專案中補充或確認下列項目以完成 SOP：
-- Processing 的啟動指令與範例（含埠號與啟動參數）
-- Python 智能體的啟動腳本（範例指令）與必要環境變數
-- Socket 連線格式（IP、Port、訊息協定簡述）
-- 如何在本機驗證（例如測試模式、錄影或 log 檔位置）
-- 若使用 Jax，說明 CUDA／驅動相容性與安裝建議
 
 ---
 
