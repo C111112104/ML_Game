@@ -17,13 +17,6 @@
 - Bellman 方程、自動回放、目標網路等核心技術
 - 經完整測試與實證
 
-| 指標 | 目標值 |
-| :-- | :-- |
-| 接球成功率 | ≥85% |
-| 推理延遲 | <30 ms |
-| 訓練收斂 | ≤2 小時 |
-
-
 ---
 
 ### 2. 🎮 TetrAI - 俄羅斯方塊 AI 對戰系統
@@ -40,13 +33,10 @@
 
 - 多代理訓練（未來將支援 PvP 對戰）
 - DQN 與遺傳演算法混合策略
-- 高維度特徵工程與資料驅動學習
-- 完整模組分解、架構流程、系統分析
-- 所有關鍵架構圖直接用 Markdown 標記語法書寫
 
 ---
 
-## Tetris AI 專案 SOP（摘要與流程圖）
+## Tetris AI 專案 SOP
 
 ```mermaid
 graph LR
@@ -59,21 +49,9 @@ graph LR
   G --> H[備註\n原說明文件有截斷／亂碼，建議補上完整 SOP 與啟動步驟]
 ```
 
-（為避免 Mermaid 解析錯誤，含方括號的安裝說明放在圖外）
-
-主要相依套件與安裝說明（放在圖外以避免 mermaid 語法衝突）：
-
-- pip 安裝常用套件（範例）：
-  - pip install keras numpy pillow tqdm tensorboard opencv-python
-- Jax（建議作為後端）：
-  - 若有 NVIDIA GPU（CUDA 12 範例）：pip install jax[cuda12]
-  - 若無 GPU：pip install jax
-- 若使用 Jax，執行前請設定環境變數，例如在 macOS / Linux 終端機：
-  - export KERAS_BACKEND="jax"
-
 由於 TetrAI 程式碼過大（523.3 MB），改暫存於 Google 雲端硬碟：  
-[https://drive.google.com/file/d/1_CELBGUG1l-ZR28EAitfSU56Nez66iVP/view
-](https://drive.google.com/drive/folders/1S_KZzMgcLDl7pfgDp02hOmo5vlgN5j6J?usp=sharing)
+https://drive.google.com/drive/folders/10AiN1cVYvmfvcFvaL1PQcXy3FlwcxihK?usp=sharing 
+
 建議在本專案中補充或確認下列項目以完成 SOP：
 - Processing 的啟動指令與範例（含埠號與啟動參數）
 - Python 智能體的啟動腳本（範例指令）與必要環境變數
