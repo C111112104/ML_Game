@@ -72,8 +72,8 @@ graph LR
   - export KERAS_BACKEND="jax"
 
 由於 TetrAI 程式碼過大（523.3 MB），改暫存於 Google 雲端硬碟：  
-https://drive.google.com/file/d/1_CELBGUG1l-ZR28EAitfSU56Nez66iVP/view
-
+[https://drive.google.com/file/d/1_CELBGUG1l-ZR28EAitfSU56Nez66iVP/view
+](https://drive.google.com/drive/folders/1S_KZzMgcLDl7pfgDp02hOmo5vlgN5j6J?usp=sharing)
 建議在本專案中補充或確認下列項目以完成 SOP：
 - Processing 的啟動指令與範例（含埠號與啟動參數）
 - Python 智能體的啟動腳本（範例指令）與必要環境變數
