@@ -41,9 +41,6 @@ graph LR
   G --> H[備註\n原說明文件有截斷／亂碼，建議補上完整 SOP 與啟動步驟]
 ```
 
-由於 TetrAI 程式碼過大（523.3 MB），改暫存於 Google 雲端硬碟：  
-https://drive.google.com/drive/folders/10AiN1cVYvmfvcFvaL1PQcXy3FlwcxihK?usp=sharing 
-
 ---
 
 ## 簡報 Todo
