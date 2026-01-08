@@ -32,17 +32,19 @@
 - **經驗回放 (Experience Replay)**：打破數據相關性，提高訓練穩定性。
 - **目標網絡 (Target Network)**：穩定 Q 值更新，防止訓練發散。
 
-| 指標 | 目標值 |
-| :--- | :--- |
-| 接球成功率 | ≥85% |
-| 推理延遲 | <30 ms |
-| 訓練收斂 | ≤2 小時 |
-
-<img width="605" height="293" alt="image" src="https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f" />
+<p align="center">
+  <img width="605" height="293" alt="Ping Pong Training Interface" src="https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f" />
+  <br>
+  <em>圖 1：乒乓球 AI 訓練介面展示</em>
+</p>
 
 - DEMO:
 
 https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
+
+<p align="center">
+  <em>影片 1：乒乓球 AI 實際運行展示</em>
+</p>
 
 🔗 [**線上瀏覽 - 乒乓球 AI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
 
@@ -58,7 +60,11 @@ https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
 
 https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 
-🔗 [**TetrAI 專題詳細提案**](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
+<p align="center">
+  <em>影片 2：TetrAI 俄羅斯方塊對戰 AI 展示</em>
+</p>
+
+🔗 [**TetrAI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
 
 ---
 
@@ -69,7 +75,7 @@ https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 | 1211 | 關於 `ping-pong-ai-project.md`：1) Dueling 的目標 Q 值在 `Ben_DQN.py` 中目標 Q 值是多少？ 2) Dueling Q 值計算公式中的 A 值代表 reward 嗎？在 `Ben_DQN.py` 中每次給的 reward 是多少？ |
 | 1218 | (空 / 待補) |
 
-1. Tertx 補 breakdown diargam , API table
+1. 補 breakdown diargam , API table
 2. breakdown diargam , API table 需要對應
 3. 對各個 breakdown 的 submodule 單元測試 結果，貼到簡報
 4. 找 loss function 曲線結果圖
@@ -90,20 +96,20 @@ https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 
 ```text
 .
-├── TetrAI-code/           # 俄羅斯方塊 AI 原始碼 (Processing + Python)
-│   ├── main.pde           # Processing 主程式
-│   ├── server.py          # Python AI 伺服器
-│   ├── config.pde         # 遊戲參數設定
-│   └── ...                # 其他遊戲邏輯與頁面檔案
-├── doc/                   # 專案文件與提案
-│   ├── ping-pong-ai-project.md # 乒乓球 AI 報告
-│   └── TetrAI_Proposal.md      # TetrAI 提案文件
-├── train-pong/            # 乒乓球 AI 訓練相關資料
-│   ├── saved_models/      # 訓練模型存檔 (.pth, .pkl)
-│   ├── BEN_DQN.py         # 乒乓球 DQN 模型核心代碼
-│   ├── ann_train.py       # 訓練腳本
-│   ├── training_log.csv   # 訓練記錄檔
-│   └── runs/              # TensorBoard 記錄
-├── sync_git.sh            # Git 同步腳本
-└── README.md              # 專案說明文件
+├── TetrAI-code/           # (Local Only) 俄羅斯方塊 AI 原始碼 (Processing + Python)
+│   ├── main.pde           # 遊戲進入點與環境初始化
+│   ├── server.py          # Python 端 DQN 決策伺服器
+│   ├── config.pde         # 遊戲全域變數與 UI 配置
+│   └── ...                # 包含頁面管理、移動控制與方塊邏輯
+├── doc/                   # 專案技術文件與詳細報告
+│   ├── ping-pong-ai-project.md # 乒乓球遊戲 AI 技術分析與驗證
+│   └── TetrAI_Proposal.md      # TetrAI 系統設計與開發提案
+├── train-pong/            # 乒乓球 AI 訓練模組與歷史數據
+│   ├── saved_models/      # 存放訓練過程中的模型權重檔 (.pth)
+│   ├── BEN_DQN.py         # Dueling Double DQN 模型架構實現
+│   ├── ann_train.py       # 訓練主程式與環境對接邏輯
+│   ├── training_log.csv   # 訓練獎勵與損失函數記錄
+│   └── runs/              # TensorBoard 視覺化訓練日誌
+├── sync_git.sh            # 自動化 Git 同步工作腳本
+└── README.md              # 專案總覽與導覽說明
 ```
