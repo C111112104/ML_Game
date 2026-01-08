@@ -53,8 +53,8 @@ https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
 
 - DEMO:
 
-![Doodle Jump AI Demo](https://github.com/user-attachments/assets/bc3babd8-ffbe-4231-9a70-0d3d96ee8b4d)
-*圖 2：Doodle Jump AI 遊戲畫面與訓練數據*
+ https://github.com/user-attachments/assets/bc3babd8-ffbe-4231-9a70-0d3d96ee8b4d
+*影片 2：Doodle Jump AI 遊戲畫面與訓練數據*
 
 🔗 [**線上瀏覽 - Doodle Jump AI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/doodle-jump-present.md)
 
