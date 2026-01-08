@@ -55,4 +55,11 @@ graph LR
 | 1211 | 關於 `ping-pong-ai-project.md`：1) Dueling 的目標 Q 值在 `Ben_DQN.py` 中目標 Q 值是多少？ 2) Dueling Q 值計算公式中的 A 值代表 reward 嗎？在 `Ben_DQN.py` 中每次給的 reward 是多少？ |
 | 1218 | (空 / 待補) |
 
+1. Tertx 補 breakdown diargam , API table
+2. breakdown diargam , API table 需要對應
+3. 對各個 breakdown 的 submodule 單元測試 結果，貼到簡報
+4. 找 loss function 曲線結果圖
+5. 
 ---
+
+
