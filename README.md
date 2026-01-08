@@ -20,6 +20,7 @@
 - [🕹️ Tetris AI 專案完整執行 SOP](#-tetris-ai-專案完整執行-sop)
 - [📄 授權](#-授權)
 - [👥 分工表](#-分工表)
+- [📝 簡報 Todo](#-簡報-todo)
 
 ---
 
@@ -38,6 +39,10 @@
 | 接球成功率 | ≥85% |
 | 推理延遲 | <30 ms |
 | 訓練收斂 | ≤2 小時 |
+
+<img width="605" height="293" alt="image" src="https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f" />
+
+- DEMO: [https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1](https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1)
 
 🔗 [**線上瀏覽 - 乒乓球 AI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
 
@@ -69,7 +74,24 @@
 
 ## 🕹️ Tetris AI 專案完整執行 SOP
 
-本專案分為兩個必須同時運行的組件：Processing (遊戲前端/伺服器) 和 Python (AI 後端/客戶端)。
+```mermaid
+graph LR
+  A[SOP 目標
+同時啟動 Processing（前端／伺服器）與 Python 智能體（後端）] --> B[主要相依套件
+詳見下方套件說明]
+  B --> C[後端選擇
+建議使用 Jax 加速訓練與推論]
+  C --> D[環境設定
+如使用 Jax，請將 KERAS_BACKEND 設為 jax]
+  D --> E[啟動 Processing（遊戲前端／伺服器）
+確認伺服器埠號與設定]
+  E --> F[啟動 Python 智能體（後端）
+確認 Socket 主機／埠與 Processing 對應]
+  F --> G[驗證與 DEMO
+檢查連線、觀察智能體行為、查看日誌]
+  G --> H[備註
+建議補上完整 SOP 與啟動步驟]
+```
 
 ### 🎯 必備工具與環境設定
 | 項目 | 說明 | 取得方式 |
@@ -80,13 +102,6 @@
 ### 🛠️ 步驟一：環境依賴安裝
 1. **Processing**: 安裝 `Minim` 函式庫。
 2. **Python**: `pip install keras numpy pillow tqdm tensorboard opencv-python jax`
-
-### 🚀 步驟二：啟動 Processing 遊戲前端
-開啟 `main.pde` 並點擊 **Run (▶️)**。
-
-### 🧠 步驟三：運行 Python AI 後端
-- **訓練模式**: `python3 run.py`
-- **執行模式**: `python3 run_model.py sample.keras`
 
 ---
 
@@ -102,3 +117,17 @@
 | 博皓 | 33% |
 | 亞倫 | 33% |
 | 東穎 | 33% |
+
+---
+
+## 📝 簡報 Todo
+
+| 日期 | 項目 |
+| :-- | :-- |
+| 1211 | 關於 `ping-pong-ai-project.md`：1) Dueling 的目標 Q 值在 `Ben_DQN.py` 中目標 Q 值是多少？ 2) Dueling Q 值計算公式中的 A 值代表 reward 嗎？在 `Ben_DQN.py` 中每次給的 reward 是多少？ |
+| 1218 | (空 / 待補) |
+
+1. Tertx 補 breakdown diargam , API table
+2. breakdown diargam , API table 需要對應
+3. 對各個 breakdown 的 submodule 單元測試 結果，貼到簡報
+4. 找 loss function 曲線結果圖

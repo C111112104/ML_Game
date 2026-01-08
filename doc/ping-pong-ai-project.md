@@ -17,6 +17,30 @@
 - [編碼實現](#-編碼實現)
 - [待測試與測試](#-待測試與測試)
 - [參考資源](#-參考資源)
+- [簡報 Todo](#簡報-todo)
+
+---
+
+## 簡報 Todo
+
+| 日期 | 項目 |
+| :-- | :-- |
+| 1211 | 關於 `ping-pong-ai-project.md`：1) Dueling 的目標 Q 值在 `Ben_DQN.py` 中目標 Q 值是多少？ 2) Dueling Q 值計算公式中的 A 值代表 reward 嗎？在 `Ben_DQN.py` 中每次給的 reward 是多少？ |
+| 1218 | (空 / 待補) |
+
+### 1211 — 回答與說明
+1) Ben_DQN.py 中的目標 Q 值（target Q）：
+   - target Q 在程式中計算為：
+     `expected_q_value = reward + gamma * next_states_target_q_value * (1 - done)`
+   - next_states_target_q_value 的來源：
+     - 使用 Double DQN：online network 選擇 argmax 動作（`next_states_q_values.max(1)[1]`），再由 target network 在該動作索引處評估 Q 值（`next_states_target_q_values.gather(...)`）。
+   - 因此，形式上等同於：
+     `target = r + γ * Q_target(s', argmax_a Q_online(s', a))`
+
+2) A（Advantage）是否等於 reward？Ben_DQN.py 中每次 reward 為多少？
+   - A 不是 reward。A(s,a) 在 Dueling network 表示 advantage（動作相對於該狀態的相對優勢值），用來和狀態價值 V(s) 合成 Q(s,a)：`Q = V + (A - mean(A))`。
+   - Ben_DQN.py 中的 reward 是由環境在 `environment.step(action)` 中回傳。
+   - 依本專案與典型 Atari Pong 設計，環境回傳的即時 reward 常見集合為 {-1, 0, +1}。
 
 ---
 
@@ -150,6 +174,33 @@ graph LR
     style D fill:#f8bbd0,stroke:#c2185b,stroke-width:3px,color:#000
 ```
 
+**Dueling Q 值計算**:
+$$Q(s,a) = V(s) + \left(A(s,a) - \frac{1}{|A|} \sum_{a'} A(s,a')\right)$$
+
+#### 2.2.1.2 CNN 網絡參數表
+
+| 層級 | 類型 | 輸入維度 | 輸出維度 | 核大小 | 步長 | 參數量 |
+|:-----|:-----|:---------|:---------|:-------|:-----|:-------:|
+| Conv1 | Conv2d | 4×80×64 | 32×18×14 | 8×8 | 4 | 8,224 |
+| BN1 | BatchNorm2d | 32×18×14 | 32×18×14 | - | - | 64 |
+| Conv2 | Conv2d | 32×18×14 | 64×8×6 | 4×4 | 2 | 32,832 |
+| BN2 | BatchNorm2d | 64×8×6 | 64×8×6 | - | - | 128 |
+| Conv3 | Conv2d | 64×8×6 | 64×6×4 | 3×3 | 1 | 36,928 |
+| BN3 | BatchNorm2d | 64×6×4 | 64×6×4 | - | - | 128 |
+
+**總參數量**: ~472,679
+
+#### 2.2.1.3 損失函數與核心機制
+
+**核心損失函數**:
+$$L(\theta) = \mathbb{E}\left[(r + \gamma \max_{a'} Q_{\theta^-}(s', a') - Q_\theta(s, a))^2\right]$$
+
+| 機制 | 作用 |
+|:---|:---|
+| **Double DQN** | 用當前網絡選擇動作, 用目標網絡評估價值，避免過度樂觀 |
+| **Dueling Network** | 分離狀態價值與動作優勢估計，提升學習效率 |
+| **經驗回放** | 打破時間相關性, 高效利用數據 |
+
 ---
 
 ## 🏗️ 系統設計
@@ -176,109 +227,7 @@ graph TB
     D --> D1["🔄 RL訓練迴圈"]
     D --> D2["🎁 獎勵計算"]
     D --> D3["🔁 經驗回放"]
-    
-    E --> E1["🗄️ 經驗緩衝區"]
-    E --> E2["💾 模型存儲"]
-    
-    F --> F1["🖥️ UI渲染"]
-    F --> F2["📈 訓練監控"]
-    F --> F3["📊 結果展示"]
 ```
-
-### 3.2 訓練流程序列圖 (Training MSC)
-
-```mermaid
-sequenceDiagram
-  participant Dev as "開發者"
-  participant Env as "Gym 環境"
-  participant A_PP as "Agent.preProcess()"
-  participant A_Act as "Agent.act()"
-  participant C_Fwd as "DuelCNN.forward()"
-  participant A_SR as "Agent.storeResults()"
-  participant A_Train as "Agent.train()"
-  participant Mem as "Replay Memory (Agent.memory)"
-  participant A_AE as "Agent.adaptiveEpsilon()"
-  participant Target as "Target Model Update"
-
-  Dev->>Env: "初始化 (environment.reset())"
-  Env-->>Dev: "初始幀 (s_0)"
-  Dev->>A_PP: "處理 s_0"
-  A_PP-->>Dev: "初始堆疊狀態 s_stack"
-
-  loop "訓練迴圈 (每個 Episode)"
-    Dev->>A_Act: "選擇動作 (s_stack)"
-    alt "利用 (1 - epsilon)"
-      A_Act->>C_Fwd: "Online Model Q(s_stack)"
-      C_Fwd-->>A_Act: "Q 值"
-    end
-    A_Act-->>Env: "執行動作 a"
-    Env-->>Dev: "回傳 (s', r, done)"
-
-    Dev->>A_PP: "處理 s'"
-    A_PP-->>Dev: "next_s_stack"
-    Dev->>A_SR: "存儲 (s_stack, a, r, next_s_stack, done)"
-    A_SR->>Mem: "存入 deque"
-
-    alt "記憶充足 (len >= MIN_MEMORY_LEN)"
-      Dev->>A_Train: "訓練"
-      A_Train->>Mem: "隨機採樣 BATCH_SIZE"
-      Mem-->>A_Train: "Batch"
-      A_Train->>C_Fwd: "Online Q(s), Target Q(s')"
-      C_Fwd-->>A_Train: "Q / Target Q 值"
-      A_Train->>A_Train: "計算 Loss 並 Backprop"
-      A_Train-->>Dev: "返回 (Loss, Max Q)"
-    end
-
-    alt "Episode 結束 (done == true)"
-      Dev->>Target: "Target Model.load_state_dict()"
-      Dev->>Dev: "紀錄統計數據"
-    end
-
-    alt "每 1000 步"
-      Dev->>A_AE: "adaptiveEpsilon()"
-    end
-  end
-```
-
----
-
-## 💻 編碼實現
-
-### 4.1 核心程式碼結構
-
-```python
-# 主要模組架構
-├── src/
-│   ├── config.py                 # 全局配置 & 超參數
-│   ├── environment.py            # Gym 環境封裝
-│   ├── preprocessing.py          # 圖像預處理
-│   ├── model.py                  # Dueling DQN 架構
-│   ├── agent.py                  # DQN Agent
-│   ├── memory.py                 # 經驗回放池
-│   └── trainer.py                # Double DQN 訓練器
-├── train.py                      # 訓練入口
-└── requirements.txt              # 依賴管理
-```
-
----
-
-## 🧪 待測試與測試
-
-### 5.1 單元測試 (Unit Test)
-
-| 測試項目 | 測試內容 | 預期結果 | 優先級 |
-|:---|:---|:---|:---:|
-| **環境初始化** | 加載 Pong 環境, 驗證狀態維度 | (210,160,3) | P0 |
-| **圖像預處理** | 驗證裁剪、灰度、縮放、正規化 | (4,80,64) & [0,1] | P0 |
-| **DQN 網絡** | 前向傳播, 檢查輸出維度 | (batch, 6) | P0 |
-
-### 5.2 系統測試 (System Test)
-
-- [x] F1: 遊戲環境初始化正常
-- [x] F2: 圖像預處理邏輯準確
-- [x] F3: AI 決策響應正確
-- [x] F4: 訓練模式可切換
-- [x] F5: 模型可保存與加載
 
 ---
 
@@ -293,4 +242,4 @@ sequenceDiagram
 ---
 
 **最後更新**: 2026年1月
-**版本**: 1.2 (衝突修復與內容整合)
+**版本**: 1.3 (深度整合與衝突修復)
