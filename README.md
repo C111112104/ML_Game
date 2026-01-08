@@ -33,7 +33,7 @@
 - **目標網絡 (Target Network)**：穩定 Q 值更新，防止訓練發散。
 
 ![Ping Pong Training Interface](https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f)
-*圖 1：乒乓球 AI 訓練介面展示*
+*圖 1：乒乓球 AI 訓練數據*
 
 - DEMO:
 
