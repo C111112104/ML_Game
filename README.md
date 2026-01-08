@@ -10,9 +10,10 @@
 
 - 利用 Deep Q-Network (DQN) 強化學習訓練遊戲 AI
 - 實作細節與理論請參考：[乒乓球 AI 專題簡報](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
-
+<img width="605" height="293" alt="image" src="https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f" />
 - DEMO
  
+
 
 https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
 
