@@ -122,3 +122,45 @@ graph LR
 | 博皓 | 33% |
 | 亞倫 | 33% |
 | 東穎 | 33% |
+
+---
+
+## 📂 檔案結構
+
+```text
+.
+├── TetrAI-code/
+│   ├── ChooseDifficultyPage.pde
+│   ├── README.md
+│   ├── aboutPage.pde
+│   ├── animation.pde
+│   ├── button.pde
+│   ├── config.pde
+│   ├── gameOverPage.pde
+│   ├── gamePage.pde
+│   ├── helpPage.pde
+│   ├── main.pde
+│   ├── mapManage.pde
+│   ├── moveHandler.pde
+│   ├── page.pde
+│   ├── pieceManager.pde
+│   ├── players.pde
+│   ├── server.py
+│   ├── serverHandler.pde
+│   ├── startPage.pde
+│   └── tetris.pde
+├── doc/
+│   ├── material/
+│   ├── TetrAI_Proposal.md
+│   └── ping-pong-ai-project.md
+├── saved_models/
+│   ├── dqn_episode_*.pth
+│   └── replay_buffer_*.pkl
+├── tetrAI/
+├── BEN_DQN.py
+├── Ben.py
+├── README.md
+├── ann_train.py
+├── sync_git.sh
+└── training_log.csv
+```
