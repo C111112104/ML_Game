@@ -7,7 +7,7 @@
 本專題致力於使用強化學習技術開發遊戲 AI 系統，目前包含兩個代表性案例：
 
 1.  **🏓 乒乓球遊戲 AI 系統 (Ping Pong Game AI)**：利用 Deep Q-Network (DQN) 訓練 AI 代理，使其學會高效的乒乓球遊戲策略。
-2.  **🎮 TetrAI - 俄羅斯方塊對戰 AI**：強化學習 AI 智能體可自動學習 Tetris 遊戲策略，支援進階行為（B2B、T-Spin、Ghost Piece 等）。
+2.  **🎮 Doodle Jump 遊戲 AI 系統**：基於 Q-Learning 演算法，訓練角色在 HTML5 環境中自動跳躍與生存。
 
 ---
 
@@ -15,7 +15,7 @@
 
 - [🚀 專案簡介](#-專案簡介)
 - [1. 🏓 乒乓球遊戲 AI 系統](#1--乒乓球遊戲-ai-系統)
-- [2. 🎮 TetrAI - 俄羅斯方塊對戰 AI](#2--tetrai---俄羅斯方塊對戰-ai)
+- [2. 🎮 Doodle Jump 遊戲 AI 系統](#2--doodle-jump-遊戲-ai-系統)
 - [📝 簡報 Todo](#-簡報-todo)
 - [👥 分工表](#-分工表)
 - [📂 檔案結構](#-檔案結構)
@@ -32,39 +32,31 @@
 - **經驗回放 (Experience Replay)**：打破數據相關性，提高訓練穩定性。
 - **目標網絡 (Target Network)**：穩定 Q 值更新，防止訓練發散。
 
-<p align="center">
-  <img width="605" height="293" alt="Ping Pong Training Interface" src="https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f" />
-  <br>
-  <em>圖 1：乒乓球 AI 訓練介面展示</em>
-</p>
+![Ping Pong Training Interface](https://github.com/user-attachments/assets/49cd8c15-afc2-4561-94d7-9488ea3d5e6f)
+*圖 1：乒乓球 AI 訓練介面展示*
 
 - DEMO:
 
 https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
 
-<p align="center">
-  <em>影片 1：乒乓球 AI 實際運行展示</em>
-</p>
+*影片 1：乒乓球 AI 實際運行展示*
 
 🔗 [**線上瀏覽 - 乒乓球 AI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/ping-pong-ai-project.md)
 
 ---
 
-## 2. 🎮 TetrAI - 俄羅斯方塊對戰 AI
+## 2. 🎮 Doodle Jump 遊戲 AI 系統
 
-- 強化學習 AI 智能體可自動學習 Tetris 遊戲策略。
-- 嚴謹 Socket 架構（Processing 遊戲引擎 ＋ Python 智能體）。
-- **核心特性**：多代理訓練、DQN 與遺傳演算法混合策略、高維度特徵工程。
+- 使用 **Q-Learning** 演算法訓練 AI 在 HTML5 版 Doodle Jump 中生存。
+- 支援瀏覽器端實時訓練與視覺化（Chart.js）。
+- **核心特性**：狀態空間離散化、獎勵機制設計、即時決策。
 
 - DEMO:
 
-https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
+![Doodle Jump AI Demo](doodle-jump-machine-learning/report/dj.png)
+*圖 2：Doodle Jump AI 遊戲畫面與訓練數據*
 
-<p align="center">
-  <em>影片 2：TetrAI 俄羅斯方塊對戰 AI 展示</em>
-</p>
-
-🔗 [**TetrAI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/TetrAI_Proposal.md)
+🔗 [**線上瀏覽 - Doodle Jump AI 專題報告**](https://github.com/C111112104/ML_Game/blob/main/doc/doodle-jump-present.md)
 
 ---
 
@@ -96,19 +88,21 @@ https://github.com/user-attachments/assets/882650b6-983f-4413-ace2-96f905f11f89
 
 ```text
 .
-├── TetrAI-code/           # (Local Only) 俄羅斯方塊 AI 原始碼 (Processing + Python)
-│   ├── main.pde           # 遊戲進入點與環境初始化
-│   ├── server.py          # Python 端 DQN 決策伺服器
-│   ├── config.pde         # 遊戲全域變數與 UI 配置
-│   └── ...                # 包含頁面管理、移動控制與方塊邏輯
+├── doodle-jump-machine-learning/ # Doodle Jump AI 原始碼 (HTML5 + JS)
+│   ├── index.html         # 遊戲入口網頁
+│   ├── scripts/           # 遊戲邏輯與 AI 演算法
+│   │   ├── GameLogic.js   # 遊戲主邏輯
+│   │   └── QLearning.js   # Q-Learning 核心
+│   └── report/            # 訓練結果圖表
 ├── doc/                   # 專案技術文件與詳細報告
 │   ├── ping-pong-ai-project.md # 乒乓球遊戲 AI 技術分析與驗證
-│   └── TetrAI_Proposal.md      # TetrAI 系統設計與開發提案
+│   ├── doodle-jump-present.md  # Doodle Jump AI 系統設計報告
+│   └── TetrAI_Proposal.md      # (歷史) TetrAI 提案文件
 ├── train-pong/            # 乒乓球 AI 訓練模組與歷史數據
 │   ├── saved_models/      # 存放訓練過程中的模型權重檔 (.pth)
 │   ├── BEN_DQN.py         # Dueling Double DQN 模型架構實現
 │   ├── ann_train.py       # 訓練主程式與環境對接邏輯
-│   ├── training_log.csv   # 訓練獎勵與損失函數記錄
+│   ├── training_log.csv   # 訓練記錄檔
 │   └── runs/              # TensorBoard 視覺化訓練日誌
 ├── sync_git.sh            # 自動化 Git 同步工作腳本
 └── README.md              # 專案總覽與導覽說明

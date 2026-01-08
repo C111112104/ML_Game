@@ -59,29 +59,9 @@ AI 模型:
 
 ## 📊 系統分析
 
-### 2.1 用例圖 (Use Case)
+### 2.1 演算法核心：Q-Learning
 
-```mermaid
-graph TB
-    subgraph 系統邊界
-        UC1[執行 Q-Learning 訓練]
-        UC2[執行 Doodle Jump 遊戲]
-        UC3[視覺化訓練數據]
-        UC4[保存/加載 Brain 模型]
-    end
-
-    User[使用者/開發者] -->|觀察/加速| UC1
-    User -->|重置/調整參數| UC2
-    User -->|查看圖表| UC3
-
-    UC1 -->|決策| UC2
-    UC1 -->|更新 Q 表| UC4
-    UC2 -->|回傳 Reward| UC1
-```
-
-### 2.2 演算法核心：Q-Learning
-
-#### 2.2.1 Q-Table 結構
+#### 2.1.1 Q-Table 結構
 
 AI 的 "大腦" (`brain`) 是一個三維陣列 (或嵌套物件)，用於存儲 Q 值：
 $$Q(State, Action) \rightarrow Value$$
@@ -94,7 +74,7 @@ $$Q(State, Action) \rightarrow Value$$
 **動作 (Action)**：
 - 實際上 AI 輸出的是到達目標平台的 **方向決策**，遊戲邏輯將其轉換為左右移動的速度 (`vx`)。
 
-#### 2.2.2 獎勵函數 (Reward Function)
+#### 2.1.2 獎勵函數 (Reward Function)
 
 $$R = \text{Score}\_\text{current} - \text{Score}\_\text{prev} - \text{Penalty}$$
 
@@ -104,7 +84,7 @@ $$R = \text{Score}\_\text{current} - \text{Score}\_\text{prev} - \text{Penalty}$
   - **死亡**: 給予極大懲罰 (-100 * scale)。
   - **無效移動**: 若目標平台比上一次更低，給予懲罰 (-20)。
 
-#### 2.2.3 更新公式
+#### 2.1.3 更新公式
 
 本專案使用簡化的 Q-Learning 更新規則：
 $$Q(s, a) \leftarrow Q(s, a) + \alpha \cdot R$$
@@ -156,13 +136,13 @@ graph TD
 
 | 模組 | 函數/方法 | 輸入參數 | 返回值 | 功能說明 |
 |:---|:---|:---|:---|:---|
-| **Brain** | `brain.predict(state)` | `state [type, dy, dx]` | `Q-value (int)` | 根據當前狀態預測最佳動作的 Q 值 |
-| **Brain** | `brain.reward(amount)` | `amount (float)` | `void` | 更新上一個狀態-動作對的 Q 值 (Q-Learning Update) |
-| **GameLogic** | `get_states()` | `void` | `state[]` | 遍歷所有平台，計算並返回當前所有可能的狀態 |
-| **GameLogic** | `decide()` | `void` | `void` | 呼叫 AI 進行決策，設定 `target_platform` |
-| **GameLogic** | `playerCalc()` | `void` | `void` | 每一幀更新玩家物理狀態，觸發 AI 決策 |
-| **GameLogic** | `reset()` | `void` | `void` | 遊戲結束時重置狀態，並觸發圖表更新與模型保存 |
-| **Storage** | `store.set(key, value)`| `key, value` | `void` | 將訓練好的 Brain 物件存入瀏覽器 LocalStorage |
+| **AIModule/Brain** | `brain.predict(state)` | `state [type, dy, dx]` | `Q-value (int)` | 根據當前狀態預測最佳動作的 Q 值 |
+| **AIModule/Brain** | `brain.reward(amount)` | `amount (float)` | `void` | 更新上一個狀態-動作對的 Q 值 (Q-Learning Update) |
+| **GameModule/Logic** | `get_states()` | `void` | `state[]` | 遍歷所有平台，計算並返回當前所有可能的狀態 |
+| **GameModule/Logic** | `decide()` | `void` | `void` | 呼叫 AI 進行決策，設定 `target_platform` |
+| **GameModule/Logic** | `playerCalc()` | `void` | `void` | 每一幀更新玩家物理狀態，觸發 AI 決策 |
+| **GameModule/Logic** | `reset()` | `void` | `void` | 遊戲結束時重置狀態，並觸發圖表更新與模型保存 |
+| **Utils/Storage** | `store.set(key, value)`| `key, value` | `void` | 將訓練好的 Brain 物件存入瀏覽器 LocalStorage |
 
 ---
 
@@ -203,17 +183,20 @@ var Q_model = function() {
 
 | 測試模組 | 測試案例 (Test Case) | 預期結果 | 實際結果 | 狀態 |
 |:---|:---|:---|:---|:---|
-| **StateMgr** | `get_states()` 在標準位置 | 返回正確的 `[type, dy, dx]` 陣列 | `[1, 50, 20], ...` | ✅ Pass |
-| **Brain** | `predict()` 新狀態 | 返回 1-100 間的隨機 Q 值 | `42` (Random) | ✅ Pass |
-| **Brain** | `reward(100)` 更新 Q 值 | Q 值增加 `alpha * 100` | Q 值由 42 變為 142 | ✅ Pass |
-| **Physics** | 玩家碰撞平台 | `player.vy` 重置為跳躍速度 | `vy = -8` | ✅ Pass |
-| **Logic** | 玩家掉落底部 | 觸發 `gameOver()` 與 `brain.reward(-penalty)` | 遊戲重置, Score 歸零 | ✅ Pass |
+| **AIModule/StateMgr** | `get_states()` 在標準位置 | 返回正確的 `[type, dy, dx]` 陣列 | `[1, 50, 20], ...` | ✅ Pass |
+| **AIModule/Brain** | `predict()` 新狀態 | 返回 1-100 間的隨機 Q 值 | `42` (Random) | ✅ Pass |
+| **AIModule/Brain** | `reward(100)` 更新 Q 值 | Q 值增加 `alpha * 100` | Q 值由 42 變為 142 | ✅ Pass |
+| **GameModule/Player** | 玩家碰撞平台 | `player.vy` 重置為跳躍速度 | `vy = -8` | ✅ Pass |
+| **GameModule/Logic** | 玩家掉落底部 | 觸發 `gameOver()` 與 `brain.reward(-penalty)` | 遊戲重置, Score 歸零 | ✅ Pass |
 
 ### 5.2 訓練成效觀察 (Loss / Score Curve)
 
 由於本專案使用簡化版 Q-Learning，我們主要觀察 **平均分數 (Average Score)** 與 **探索狀態數 (States Explored)** 的關係，而非傳統的 Loss Function。
 
-**訓練曲線分析 (基於 report/x40y10rate1.png)**：
+**訓練曲線分析**：
+
+![Training Results](../doodle-jump-machine-learning/report/x40y10rate1.png)
+*圖 2：Doodle Jump AI 訓練成效曲線 (X: Lives, Y: Score)*
 
 - **X 軸**: 生命數 (Lives / Iterations)
 - **Y 軸**: 分數 (Score)
@@ -221,8 +204,6 @@ var Q_model = function() {
     - **0-100 Iterations**: 分數低，AI 正在隨機探索大量新狀態。
     - **100-500 Iterations**: 分數開始震盪上升，AI 學會了基本的跳躍與平台選擇。
     - **500+ Iterations**: 分數顯著提高，達到穩定高分 (10000+)，說明 Q-Table 已收斂到較佳策略。
-
-> 註：可參考 `doodle-jump-machine-learning/report/` 目錄下的圖表文件。
 
 ---
 
