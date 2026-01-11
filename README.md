@@ -37,7 +37,7 @@
 
 - DEMO:
 
-https://github.com/user-attachments/assets/162027fa-aeb2-4d6c-8088-23f69ab33ba1
+https://github.com/user-attachments/assets/57969fee-4c22-4057-a628-208af59b1ef6
 
 *影片 1：乒乓球 AI 實際運行展示*
 
